@@ -1,0 +1,47 @@
+.barangay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.barangay-card {
+  background: white; border-radius: 12px; padding: 1.25rem;
+  border: 1px solid #e5e7eb; display: flex; flex-direction: column;
+  gap: 0.75rem; cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.barangay-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.barangay-card__avatar {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #1a3a5c, #2563eb);
+  border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; color: white; font-size: 1.35rem; font-weight: 700;
+}
+.barangay-card__name { margin:0; font-size:1rem; font-weight:700; color:#0f172a; }
+.barangay-card__info { display:flex; flex-direction:column; gap:0.3rem; flex:1; }
+.barangay-card__info p { margin:0; font-size:0.8125rem; color:#64748b; }
+.modal-overlay {
+  position: fixed; inset:0; background:rgba(0,0,0,0.45);
+  display:flex; align-items:center; justify-content:center;
+  z-index:1000; padding:1rem;
+}
+.brgy-modal {
+  background:white; border-radius:14px; width:100%; max-width:520px;
+  max-height:85vh; overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.2);
+}
+.brgy-modal__header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.25rem 1.5rem; border-bottom:1px solid #e5e7eb;
+  position:sticky; top:0; background:white;
+}
+.brgy-modal__header h2 { margin:0; font-size:1.125rem; font-weight:700; color:#0f172a; }
+.modal-close-btn {
+  background:none; border:none; font-size:1.1rem;
+  color:#9ca3af; cursor:pointer; padding:0.25rem;
+}
+.modal-close-btn:hover { color:#374151; }
+.brgy-modal__body { padding:1.5rem; display:flex; flex-direction:column; gap:0.5rem; }
+.brgy-modal__body p { margin:0; font-size:0.9rem; color:#374151; }
+.brgy-modal__body h4 { font-size:0.875rem; font-weight:700; color:#0f172a; margin-bottom:0.4rem; }
+.brgy-modal__body ul { padding-left:1.25rem; display:flex; flex-direction:column; gap:0.3rem; }
+.brgy-modal__body li { font-size:0.875rem; color:#374151; }

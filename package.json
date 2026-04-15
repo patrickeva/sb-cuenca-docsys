@@ -1,0 +1,26 @@
+{
+  "name": "sb-document-system",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "date-fns": "^3.6.0",
+    "firebase": "^10.14.1",
+    "lucide-react": "^0.344.0",
+    "pdfjs-dist": "^3.11.174",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.4.1",
+    "react-hot-toast": "^2.6.0",
+    "react-pdf": "^7.7.1",
+    "react-router-dom": "^6.30.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
