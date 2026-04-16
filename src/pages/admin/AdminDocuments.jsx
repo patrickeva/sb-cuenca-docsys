@@ -1,3 +1,4 @@
+// src/pages/admin/AdminDocuments.jsx
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useDocuments } from "../../hooks/useDocuments.js";
@@ -8,6 +9,19 @@ import DeleteConfirmModal from "../../components/shared/DeleteConfirmModal.jsx";
 import { Search, FileText, MapPin, Eye, Pencil, Trash2 } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 import "./AdminDocuments.css";
+
+const getOpenUrl = (doc) => {
+  const isWord =
+    doc.fileType === "application/msword" ||
+    doc.fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    doc.fileName?.endsWith(".doc") ||
+    doc.fileName?.endsWith(".docx");
+
+  if (isWord) {
+    return `https://docs.google.com/gview?url=${encodeURIComponent(doc.fileUrl)}&embedded=false`;
+  }
+  return doc.fileUrl;
+};
 
 const AdminDocuments = () => {
   const { userProfile, isAdmin } = useAuth();
@@ -27,12 +41,7 @@ const AdminDocuments = () => {
   }).filter((d) => !filterBarangay || d.barangayName === filterBarangay);
 
   const handleStatusSave = async (status, reviewNote) => {
-    await changeStatus(
-      statusModal.document.id,
-      status,
-      reviewNote,
-      statusModal.document
-    );
+    await changeStatus(statusModal.document.id, status, reviewNote, statusModal.document);
     setStatusModal({ open:false, document:null });
   };
 
@@ -67,7 +76,6 @@ const AdminDocuments = () => {
         </p>
       </div>
 
-      {/* Filters */}
       <div className="adocs-filters">
         <div className="adocs-search-wrap">
           <Search size={16} className="adocs-search-icon" />
@@ -117,11 +125,8 @@ const AdminDocuments = () => {
           return (
             <div key={doc.id} className="adoc-card">
               <div className="adoc-card__top">
-                <div className="adoc-card__icon">
-                  <FileText size={16} color="#2563eb" />
-                </div>
-                <span className="status-badge"
-                  style={{ background:colors.bg, color:colors.text }}>
+                <div className="adoc-card__icon"><FileText size={16} color="#2563eb" /></div>
+                <span className="status-badge" style={{ background:colors.bg, color:colors.text }}>
                   <span className="status-dot" style={{ background:colors.dot }} />
                   {doc.status}
                 </span>
@@ -129,21 +134,15 @@ const AdminDocuments = () => {
               <div className="adoc-card__name">{doc.fileName}</div>
               <div className="adoc-card__meta">
                 <span><MapPin size={12} /> {doc.barangayName}</span>
-                <span style={{ textTransform:"capitalize" }}>
-                  {doc.category?.replace("_"," ")}
-                </span>
+                <span style={{ textTransform:"capitalize" }}>{doc.category?.replace("_"," ")}</span>
                 <span>{formatFileSize(doc.fileSize)}</span>
               </div>
               <div className="adoc-card__date">{formatDate(doc.uploadedAt)}</div>
               <div className="adoc-card__actions">
-                <a href={doc.fileViewUrl || doc.fileUrl} target="_blank" rel="noreferrer"
+                <a href={getOpenUrl(doc)} target="_blank" rel="noreferrer"
                   className="btn btn-secondary btn-sm">
-                 <Eye size={13} /> View
-               </a>
-              <a href={doc.fileUrl} download
-                 className="btn btn-secondary btn-sm">
-                 ↓ Download
-              </a>
+                  <Eye size={13} /> View
+                </a>
                 <button className="btn btn-primary btn-sm"
                   onClick={() => setStatusModal({ open:true, document:doc })}>
                   <Pencil size={13} /> Update
@@ -186,37 +185,29 @@ const AdminDocuments = () => {
                 <tr key={doc.id}>
                   <td>
                     <div className="adocs-filename">
-                      <div className="adocs-file-icon">
-                        <FileText size={13} color="#2563eb" />
-                      </div>
+                      <div className="adocs-file-icon"><FileText size={13} color="#2563eb" /></div>
                       <span>{doc.fileName}</span>
                     </div>
                   </td>
                   <td>
                     <div style={{ display:"flex", alignItems:"center", gap:"0.3rem" }}>
-                      <MapPin size={12} color="#94a3b8" />
-                      {doc.barangayName}
+                      <MapPin size={12} color="#94a3b8" /> {doc.barangayName}
                     </div>
                   </td>
-                  <td>
-                    <span className="adocs-category">
-                      {doc.category?.replace("_"," ")}
-                    </span>
-                  </td>
+                  <td><span className="adocs-category">{doc.category?.replace("_"," ")}</span></td>
                   <td style={{ color:"#64748b" }}>{formatFileSize(doc.fileSize)}</td>
                   <td style={{ color:"#64748b", fontSize:"0.8rem", whiteSpace:"nowrap" }}>
                     {formatDate(doc.uploadedAt)}
                   </td>
                   <td>
-                    <span className="status-badge"
-                      style={{ background:colors.bg, color:colors.text }}>
+                    <span className="status-badge" style={{ background:colors.bg, color:colors.text }}>
                       <span className="status-dot" style={{ background:colors.dot }} />
                       {doc.status}
                     </span>
                   </td>
                   <td>
                     <div className="adocs-actions">
-                      <a href={doc.fileUrl} target="_blank" rel="noreferrer"
+                      <a href={getOpenUrl(doc)} target="_blank" rel="noreferrer"
                         className="btn btn-secondary btn-sm">
                         <Eye size={13} /> View
                       </a>

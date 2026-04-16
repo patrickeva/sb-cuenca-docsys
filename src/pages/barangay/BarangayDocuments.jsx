@@ -1,3 +1,4 @@
+// src/pages/barangay/BarangayDocuments.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -5,8 +6,21 @@ import { useDocuments } from "../../hooks/useDocuments.js";
 import { DOCUMENT_CATEGORIES, DOCUMENT_STATUS, STATUS_COLORS } from "../../utils/constants.js";
 import { filterDocuments, formatDate, formatFileSize } from "../../utils/helpers.js";
 import DeleteConfirmModal from "../../components/shared/DeleteConfirmModal.jsx";
-import { Upload, Eye, Trash2, Download, FileText } from "lucide-react";
+import { Upload, Eye, Trash2, FileText } from "lucide-react";
 import "../../components/shared/MainLayout.css";
+
+const getOpenUrl = (doc) => {
+  const isWord =
+    doc.fileType === "application/msword" ||
+    doc.fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    doc.fileName?.endsWith(".doc") ||
+    doc.fileName?.endsWith(".docx");
+
+  if (isWord) {
+    return `https://docs.google.com/gview?url=${encodeURIComponent(doc.fileUrl)}&embedded=false`;
+  }
+  return doc.fileUrl;
+};
 
 const BarangayDocuments = () => {
   const { userProfile, isAdmin, barangayId } = useAuth();
@@ -111,32 +125,25 @@ const BarangayDocuments = () => {
                     <td>
                       <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
                         <div style={{
-                          width:28, height:28, background:"#eff6ff",
-                          borderRadius:7, display:"flex",
-                          alignItems:"center", justifyContent:"center",
-                          flexShrink:0,
+                          width:28, height:28, background:"#eff6ff", borderRadius:7,
+                          display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
                         }}>
                           <FileText size={13} color="#2563eb" />
                         </div>
-                        <span style={{ fontWeight:600, fontSize:"0.82rem" }}>
-                          {doc.fileName}
-                        </span>
+                        <span style={{ fontWeight:600, fontSize:"0.82rem" }}>{doc.fileName}</span>
                       </div>
                     </td>
                     <td>
                       <span style={{
-                        background:"#f1f5f9", color:"#475569",
-                        padding:"0.2rem 0.55rem", borderRadius:6,
-                        fontSize:"0.76rem", fontWeight:600,
-                        textTransform:"capitalize",
+                        background:"#f1f5f9", color:"#475569", padding:"0.2rem 0.55rem",
+                        borderRadius:6, fontSize:"0.76rem", fontWeight:600, textTransform:"capitalize",
                       }}>
                         {doc.category?.replace("_"," ")}
                       </span>
                     </td>
                     <td style={{ color:"#64748b" }}>{formatFileSize(doc.fileSize)}</td>
                     <td>
-                      <span className="status-badge"
-                        style={{ background:colors.bg, color:colors.text }}>
+                      <span className="status-badge" style={{ background:colors.bg, color:colors.text }}>
                         <span className="status-dot" style={{ background:colors.dot }} />
                         {doc.status}
                       </span>
@@ -145,19 +152,13 @@ const BarangayDocuments = () => {
                       {formatDate(doc.uploadedAt)}
                     </td>
                     <td style={{ color:"#64748b", fontSize:"0.8rem", maxWidth:180 }}>
-                      {doc.reviewNote || (
-                        <span style={{ color:"#cbd5e1" }}>No notes yet</span>
-                      )}
+                      {doc.reviewNote || <span style={{ color:"#cbd5e1" }}>No notes yet</span>}
                     </td>
                     <td>
                       <div style={{ display:"flex", gap:"0.4rem" }}>
-                        <a href={doc.fileUrl} target="_blank" rel="noreferrer"
+                        <a href={getOpenUrl(doc)} target="_blank" rel="noreferrer"
                           className="btn btn-secondary btn-sm">
                           <Eye size={13} /> View
-                        </a>
-                        <a href={doc.fileUrl} download={doc.fileName}
-                          className="btn btn-success btn-sm">
-                          <Download size={13} />
                         </a>
                         <button className="btn btn-danger btn-sm"
                           onClick={() => setDeleteModal({ open:true, document:doc })}>

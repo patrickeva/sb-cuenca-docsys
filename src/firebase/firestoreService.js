@@ -8,21 +8,10 @@ import { db } from "./config.js";
 
 // ── HELPERS ────────────────────────────────────
 
-const patchCloudinaryUrl = (url) => {
-  if (!url || url.includes("fl_attachment")) return url;
-  return url.replace("/upload/", "/upload/fl_attachment/");
-};
-
-const getViewUrl = (url) => {
-  if (!url) return url;
-  return url.replace("/upload/fl_attachment/", "/upload/");
-};
-
+// Simple mapper — no URL manipulation needed for Firebase Storage
 const mapDoc = (d) => ({
   id: d.id,
   ...d.data(),
-  fileUrl:     patchCloudinaryUrl(d.data().fileUrl),
-  fileViewUrl: getViewUrl(d.data().fileUrl),
 });
 
 // ── USERS ──────────────────────────────────────

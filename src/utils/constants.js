@@ -59,4 +59,4 @@ export const ACCEPTED_FILE_TYPES = {
   "image/png": [".png"],
 };
 
-export const MAX_FILE_SIZE_MB = 20;
+export const MAX_FILE_SIZE_MB = 50;
