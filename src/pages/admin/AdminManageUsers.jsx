@@ -66,16 +66,13 @@ const AdminManageUsers = () => {
     }
     setSaving(true);
     try {
-      // Gamitin ang secondaryAuth — hindi maaapektuhan ang admin session
       const cred = await createUserWithEmailAndPassword(
         secondaryAuth, form.email, form.password
       );
       const uid = cred.user.uid;
 
-      // I-sign out agad ang secondary auth
       await secondaryAuth.signOut();
 
-      // Save barangay profile
       await setDoc(doc(db, "barangays", uid), {
         name:                form.barangayName,
         address:             "",
@@ -87,7 +84,6 @@ const AdminManageUsers = () => {
         createdAt:           serverTimestamp(),
       });
 
-      // Save user profile
       await setDoc(doc(db, "users", uid), {
         displayName:  form.displayName,
         email:        form.email,
@@ -99,6 +95,7 @@ const AdminManageUsers = () => {
 
       setSuccess(`Account created successfully for ${form.barangayName}!`);
       setForm(EMPTY_FORM);
+      setShowForm(false); // ← ito ang idinagdag
       fetchUsers();
     } catch (err) {
       setError("Error: " + err.message);
@@ -106,7 +103,6 @@ const AdminManageUsers = () => {
       setSaving(false);
     }
   };
-
   if (loading) return (
     <div className="loading-screen">
       <div className="spinner" />
