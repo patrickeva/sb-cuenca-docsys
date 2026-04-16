@@ -3,7 +3,8 @@ import {
   collection, getDocs, doc,
   setDoc, serverTimestamp,
 } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, initializeAuth, browserLocalPersistence } from "firebase/auth";
+import { initializeApp } from "firebase/app";
 import { db, auth } from "../../firebase/config.js";
 import { CUENCA_BARANGAYS } from "../../utils/constants.js";
 import { formatDate } from "../../utils/helpers.js";
@@ -11,10 +12,25 @@ import { Users, Plus, Trash2 } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 import "../../components/shared/Modal.css";
 
+// Secondary Firebase app — para hindi ma-affect ang admin session
+const firebaseConfig = {
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const secondaryApp  = initializeApp(firebaseConfig, "secondary");
+const secondaryAuth = initializeAuth(secondaryApp, {
+  persistence: browserLocalPersistence,
+});
+
 const EMPTY_FORM = {
-  displayName: "",
-  email: "",
-  password: "",
+  displayName:  "",
+  email:        "",
+  password:     "",
   barangayName: CUENCA_BARANGAYS[0],
 };
 
@@ -25,6 +41,7 @@ const AdminManageUsers = () => {
   const [form,     setForm]     = useState(EMPTY_FORM);
   const [saving,   setSaving]   = useState(false);
   const [error,    setError]    = useState("");
+  const [success,  setSuccess]  = useState("");
 
   const fetchUsers = async () => {
     const snap = await getDocs(collection(db, "users"));
@@ -37,9 +54,10 @@ const AdminManageUsers = () => {
 
   useEffect(() => { fetchUsers(); }, []);
 
- const handleCreate = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     if (!form.displayName || !form.email || !form.password) {
       setError("Please fill in all fields."); return;
     }
@@ -48,10 +66,14 @@ const AdminManageUsers = () => {
     }
     setSaving(true);
     try {
+      // Gamitin ang secondaryAuth — hindi maaapektuhan ang admin session
       const cred = await createUserWithEmailAndPassword(
-        auth, form.email, form.password
+        secondaryAuth, form.email, form.password
       );
       const uid = cred.user.uid;
+
+      // I-sign out agad ang secondary auth
+      await secondaryAuth.signOut();
 
       // Save barangay profile
       await setDoc(doc(db, "barangays", uid), {
@@ -65,7 +87,7 @@ const AdminManageUsers = () => {
         createdAt:           serverTimestamp(),
       });
 
-      // Save user profile — with ALL required fields
+      // Save user profile
       await setDoc(doc(db, "users", uid), {
         displayName:  form.displayName,
         email:        form.email,
@@ -75,7 +97,7 @@ const AdminManageUsers = () => {
         createdAt:    serverTimestamp(),
       });
 
-      setShowForm(false);
+      setSuccess(`Account created successfully for ${form.barangayName}!`);
       setForm(EMPTY_FORM);
       fetchUsers();
     } catch (err) {
@@ -106,10 +128,20 @@ const AdminManageUsers = () => {
             Create and manage barangay accounts. ({users.length} accounts)
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+        <button className="btn btn-primary" onClick={() => { setShowForm(true); setSuccess(""); }}>
           <Plus size={16} /> Add Barangay Account
         </button>
       </div>
+
+      {success && (
+        <div style={{
+          background:"#f0fdf4", border:"1px solid #86efac",
+          borderRadius:10, padding:"0.75rem 1rem",
+          color:"#16a34a", marginBottom:"1rem", fontSize:"0.9rem"
+        }}>
+          ✅ {success}
+        </div>
+      )}
 
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
@@ -150,6 +182,11 @@ const AdminManageUsers = () => {
                 {error && (
                   <p style={{ margin:0, color:"#ef4444", fontSize:"0.875rem" }}>
                     ⚠️ {error}
+                  </p>
+                )}
+                {saving && (
+                  <p style={{ margin:0, color:"#3b82f6", fontSize:"0.875rem" }}>
+                    ⏳ Creating account...
                   </p>
                 )}
               </div>
