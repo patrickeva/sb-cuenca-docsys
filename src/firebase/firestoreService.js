@@ -6,12 +6,24 @@ import {
 } from "firebase/firestore";
 import { db } from "./config.js";
 
-// ── HELPER ─────────────────────────────────────
+// ── HELPERS ────────────────────────────────────
 
 const patchCloudinaryUrl = (url) => {
   if (!url || url.includes("fl_attachment")) return url;
   return url.replace("/upload/", "/upload/fl_attachment/");
 };
+
+const getViewUrl = (url) => {
+  if (!url) return url;
+  return url.replace("/upload/fl_attachment/", "/upload/");
+};
+
+const mapDoc = (d) => ({
+  id: d.id,
+  ...d.data(),
+  fileUrl:     patchCloudinaryUrl(d.data().fileUrl),
+  fileViewUrl: getViewUrl(d.data().fileUrl),
+});
 
 // ── USERS ──────────────────────────────────────
 
@@ -61,11 +73,7 @@ export const getDocumentsByBarangay = async (barangayId) => {
     orderBy("uploadedAt", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-    fileUrl: patchCloudinaryUrl(d.data().fileUrl),
-  }));
+  return snap.docs.map(mapDoc);
 };
 
 export const getAllDocuments = async () => {
@@ -74,11 +82,7 @@ export const getAllDocuments = async () => {
     orderBy("uploadedAt", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-    fileUrl: patchCloudinaryUrl(d.data().fileUrl),
-  }));
+  return snap.docs.map(mapDoc);
 };
 
 export const updateDocumentStatus = async (docId, status, reviewNote = "") => {
@@ -102,11 +106,7 @@ export const listenToBarangayDocs = (barangayId, callback) => {
     orderBy("uploadedAt", "desc")
   );
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-      fileUrl: patchCloudinaryUrl(d.data().fileUrl),
-    })));
+    callback(snap.docs.map(mapDoc));
   });
 };
 
@@ -116,11 +116,7 @@ export const listenToAllDocs = (callback) => {
     orderBy("uploadedAt", "desc")
   );
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-      fileUrl: patchCloudinaryUrl(d.data().fileUrl),
-    })));
+    callback(snap.docs.map(mapDoc));
   });
 };
 
@@ -141,23 +137,3 @@ export const getActivityLogs = async () => {
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
-
-
-//added for admin dashboard, to show all documents with view/download links
-
-const patchCloudinaryUrl = (url) => {
-  if (!url || url.includes("fl_attachment")) return url;
-  return url.replace("/upload/", "/upload/fl_attachment/");
-};
-
-const getViewUrl = (url) => {
-  if (!url) return url;
-  return url.replace("/upload/fl_attachment/", "/upload/");
-};
-
-return snap.docs.map((d) => ({
-  id: d.id,
-  ...d.data(),
-  fileUrl: patchCloudinaryUrl(d.data().fileUrl),
-  fileViewUrl: getViewUrl(d.data().fileUrl),
-}));
