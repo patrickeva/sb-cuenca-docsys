@@ -4,8 +4,16 @@
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
+console.log("[Cloudinary] cloud_name:", CLOUD_NAME);
+console.log("[Cloudinary] upload_preset:", UPLOAD_PRESET);
+
 export const uploadFile = (file, barangayId, category, onProgress) => {
   return new Promise((resolve, reject) => {
+    if (!CLOUD_NAME || !UPLOAD_PRESET) {
+      reject(new Error("Cloudinary config missing — check environment variables"));
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
@@ -24,10 +32,12 @@ export const uploadFile = (file, barangayId, category, onProgress) => {
       if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
         resolve({
-          url:  response.secure_url,
+          url: response.secure_url,
           path: response.public_id,
         });
       } else {
+        const errBody = JSON.parse(xhr.responseText);
+        console.error("[Cloudinary] Upload error response:", errBody);
         reject(new Error("Upload failed: " + xhr.responseText));
       }
     });
@@ -38,13 +48,12 @@ export const uploadFile = (file, barangayId, category, onProgress) => {
 
     xhr.open(
       "POST",
-      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`
     );
     xhr.send(formData);
   });
 };
 
 export const deleteFile = async (publicId) => {
-  // Note: Delete requires server-side — skip for now
   console.log("File delete noted:", publicId);
 };
