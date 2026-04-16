@@ -4,8 +4,10 @@
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-console.log("[Cloudinary] cloud_name:", CLOUD_NAME);
-console.log("[Cloudinary] upload_preset:", UPLOAD_PRESET);
+const makePublicUrl = (secureUrl) => {
+  // Force public access by adding fl_attachment flag
+  return secureUrl.replace("/upload/", "/upload/fl_attachment/");
+};
 
 export const uploadFile = (file, barangayId, category, onProgress) => {
   return new Promise((resolve, reject) => {
@@ -32,7 +34,7 @@ export const uploadFile = (file, barangayId, category, onProgress) => {
       if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
         resolve({
-          url: response.secure_url,
+          url: makePublicUrl(response.secure_url),
           path: response.public_id,
         });
       } else {

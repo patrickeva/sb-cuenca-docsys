@@ -6,6 +6,13 @@ import {
 } from "firebase/firestore";
 import { db } from "./config.js";
 
+// ── HELPER ─────────────────────────────────────
+
+const patchCloudinaryUrl = (url) => {
+  if (!url || url.includes("fl_attachment")) return url;
+  return url.replace("/upload/", "/upload/fl_attachment/");
+};
+
 // ── USERS ──────────────────────────────────────
 
 export const getUserProfile = async (uid) => {
@@ -54,7 +61,11 @@ export const getDocumentsByBarangay = async (barangayId) => {
     orderBy("uploadedAt", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    fileUrl: patchCloudinaryUrl(d.data().fileUrl),
+  }));
 };
 
 export const getAllDocuments = async () => {
@@ -63,7 +74,11 @@ export const getAllDocuments = async () => {
     orderBy("uploadedAt", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    fileUrl: patchCloudinaryUrl(d.data().fileUrl),
+  }));
 };
 
 export const updateDocumentStatus = async (docId, status, reviewNote = "") => {
@@ -78,7 +93,8 @@ export const deleteDocumentRecord = async (docId) => {
   await deleteDoc(doc(db, "documents", docId));
 };
 
-// Real-time listeners
+// ── REAL-TIME LISTENERS ────────────────────────
+
 export const listenToBarangayDocs = (barangayId, callback) => {
   const q = query(
     collection(db, "documents"),
@@ -86,7 +102,11 @@ export const listenToBarangayDocs = (barangayId, callback) => {
     orderBy("uploadedAt", "desc")
   );
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    callback(snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+      fileUrl: patchCloudinaryUrl(d.data().fileUrl),
+    })));
   });
 };
 
@@ -96,7 +116,11 @@ export const listenToAllDocs = (callback) => {
     orderBy("uploadedAt", "desc")
   );
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    callback(snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+      fileUrl: patchCloudinaryUrl(d.data().fileUrl),
+    })));
   });
 };
 
