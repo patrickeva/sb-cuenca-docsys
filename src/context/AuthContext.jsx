@@ -5,6 +5,18 @@ import { auth, db } from "../firebase/config.js";
 
 const AuthContext = createContext(null);
 
+const fetchProfileWithRetry = async (uid, retries = 5, delay = 800) => {
+  for (let i = 0; i < retries; i++) {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() };
+    }
+    // Hindi pa nandoon ang document — hintayin bago ulitin
+    await new Promise((res) => setTimeout(res, delay));
+  }
+  return null;
+};
+
 export const AuthProvider = ({ children }) => {
   const [currentUser,  setCurrentUser]  = useState(undefined);
   const [userProfile,  setUserProfile]  = useState(null);
@@ -15,12 +27,8 @@ export const AuthProvider = ({ children }) => {
       if (firebaseUser) {
         setCurrentUser(firebaseUser);
         try {
-          const snap = await getDoc(doc(db, "users", firebaseUser.uid));
-          if (snap.exists()) {
-            setUserProfile({ id: snap.id, ...snap.data() });
-          } else {
-            setUserProfile(null);
-          }
+          const profile = await fetchProfileWithRetry(firebaseUser.uid);
+          setUserProfile(profile);
         } catch (error) {
           console.error("Error fetching profile:", error);
           setUserProfile(null);
