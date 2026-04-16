@@ -141,3 +141,23 @@ export const getActivityLogs = async () => {
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
+
+
+//added for admin dashboard, to show all documents with view/download links
+
+const patchCloudinaryUrl = (url) => {
+  if (!url || url.includes("fl_attachment")) return url;
+  return url.replace("/upload/", "/upload/fl_attachment/");
+};
+
+const getViewUrl = (url) => {
+  if (!url) return url;
+  return url.replace("/upload/fl_attachment/", "/upload/");
+};
+
+return snap.docs.map((d) => ({
+  id: d.id,
+  ...d.data(),
+  fileUrl: patchCloudinaryUrl(d.data().fileUrl),
+  fileViewUrl: getViewUrl(d.data().fileUrl),
+}));

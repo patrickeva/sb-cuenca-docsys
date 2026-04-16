@@ -136,10 +136,14 @@ const AdminDocuments = () => {
               </div>
               <div className="adoc-card__date">{formatDate(doc.uploadedAt)}</div>
               <div className="adoc-card__actions">
-                <a href={doc.fileUrl} target="_blank" rel="noreferrer"
+                <a href={doc.fileViewUrl || doc.fileUrl} target="_blank" rel="noreferrer"
                   className="btn btn-secondary btn-sm">
-                  <Eye size={13} /> View
-                </a>
+                 <Eye size={13} /> View
+               </a>
+              <a href={doc.fileUrl} download
+                 className="btn btn-secondary btn-sm">
+                 ↓ Download
+              </a>
                 <button className="btn btn-primary btn-sm"
                   onClick={() => setStatusModal({ open:true, document:doc })}>
                   <Pencil size={13} /> Update
