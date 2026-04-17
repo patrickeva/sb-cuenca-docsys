@@ -6,12 +6,28 @@ import { DOCUMENT_CATEGORIES, DOCUMENT_STATUS, STATUS_COLORS, CUENCA_BARANGAYS }
 import { filterDocuments, formatDate, formatFileSize } from "../../utils/helpers.js";
 import StatusModal from "../../components/admin/StatusModal.jsx";
 import DeleteConfirmModal from "../../components/shared/DeleteConfirmModal.jsx";
-import { Search, FileText, MapPin, Eye, Pencil, Trash2 } from "lucide-react";
+import { Search, FileText, MapPin, Eye, Download, Pencil, Trash2 } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 import "./AdminDocuments.css";
 
-// Direct public URL — Supabase serves PDF inline in browser
-const getOpenUrl = (doc) => doc.fileUrl || "";
+const getViewUrl = (doc) => doc.fileUrl || "";
+
+const handleDownload = async (doc) => {
+  try {
+    const response = await fetch(doc.fileUrl);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = doc.fileName || "document.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    console.error("Download failed:", err);
+  }
+};
 
 const AdminDocuments = () => {
   const { userProfile, isAdmin } = useAuth();
@@ -129,10 +145,14 @@ const AdminDocuments = () => {
               </div>
               <div className="adoc-card__date">{formatDate(doc.uploadedAt)}</div>
               <div className="adoc-card__actions">
-                <a href={getOpenUrl(doc)} target="_blank" rel="noreferrer"
+                <a href={getViewUrl(doc)} target="_blank" rel="noreferrer"
                   className="btn btn-secondary btn-sm">
                   <Eye size={13} /> View
                 </a>
+                <button className="btn btn-secondary btn-sm"
+                  onClick={() => handleDownload(doc)}>
+                  <Download size={13} /> Download
+                </button>
                 <button className="btn btn-primary btn-sm"
                   onClick={() => setStatusModal({ open:true, document:doc })}>
                   <Pencil size={13} /> Update
@@ -197,10 +217,14 @@ const AdminDocuments = () => {
                   </td>
                   <td>
                     <div className="adocs-actions">
-                      <a href={getOpenUrl(doc)} target="_blank" rel="noreferrer"
+                      <a href={getViewUrl(doc)} target="_blank" rel="noreferrer"
                         className="btn btn-secondary btn-sm">
                         <Eye size={13} /> View
                       </a>
+                      <button className="btn btn-secondary btn-sm"
+                        onClick={() => handleDownload(doc)}>
+                        <Download size={13} /> Download
+                      </button>
                       <button className="btn btn-primary btn-sm"
                         onClick={() => setStatusModal({ open:true, document:doc })}>
                         <Pencil size={13} /> Update
