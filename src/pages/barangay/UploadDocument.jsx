@@ -10,6 +10,30 @@ import { Upload, FileText, X, CheckCircle } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 import "./UploadDocument.css";
 
+// Poll the Cloudinary URL until the file is actually accessible (max 15 tries)
+const waitUntilReady = (url, maxTries = 15, interval = 1000) => {
+  return new Promise((resolve) => {
+    let tries = 0;
+    const check = () => {
+      fetch(url, { method: "HEAD" })
+        .then((res) => {
+          if (res.ok) {
+            resolve(true);
+          } else if (++tries < maxTries) {
+            setTimeout(check, interval);
+          } else {
+            resolve(false); // give up, redirect anyway
+          }
+        })
+        .catch(() => {
+          if (++tries < maxTries) setTimeout(check, interval);
+          else resolve(false);
+        });
+    };
+    check();
+  });
+};
+
 const UploadDocument = () => {
   const navigate = useNavigate();
   const { userProfile, isAdmin, barangayId } = useAuth();
@@ -21,12 +45,13 @@ const UploadDocument = () => {
   const [progress,    setProgress]    = useState(0);
   const [uploading,   setUploading]   = useState(false);
   const [success,     setSuccess]     = useState(false);
+  const [fileUrl,     setFileUrl]     = useState(null);
   const [error,       setError]       = useState("");
 
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     setError("");
     if (rejectedFiles.length > 0) {
-      setError(`File rejected. Allowed: PDF, Word, JPG, PNG — max ${MAX_FILE_SIZE_MB}MB.`);
+      setError(`File rejected. PDF lang ang tinatanggap — max ${MAX_FILE_SIZE_MB}MB.`);
       return;
     }
     if (acceptedFiles.length > 0) setFile(acceptedFiles[0]);
@@ -48,14 +73,29 @@ const UploadDocument = () => {
     setProgress(0);
 
     try {
-      await uploadDocument(file, category, description, setProgress);
+      const docId = await uploadDocument(file, category, description, setProgress, (url) => {
+        setFileUrl(url);
+      });
       setSuccess(true);
-      setTimeout(() => navigate("/barangay/documents"), 2000);
     } catch (err) {
       setError("Upload failed: " + err.message);
       setUploading(false);
     }
   };
+
+  // Once success, wait for Cloudinary to be ready then redirect
+  React.useEffect(() => {
+    if (!success) return;
+    if (!fileUrl) {
+      // No URL yet, just redirect after 3s
+      const t = setTimeout(() => navigate("/barangay/documents"), 3000);
+      return () => clearTimeout(t);
+    }
+    // Poll until file is accessible, then redirect
+    waitUntilReady(fileUrl).then(() => {
+      navigate("/barangay/documents");
+    });
+  }, [success, fileUrl, navigate]);
 
   return (
     <div className="page-wrapper">
@@ -77,11 +117,10 @@ const UploadDocument = () => {
             <CheckCircle size={56} color="#10b981" />
           </div>
           <h3>Document Uploaded Successfully!</h3>
-          <p>Redirecting to your documents...</p>
+          <p>Please wait, preparing your document...</p>
         </div>
       ) : (
         <div className="upload-container">
-          {/* Dropzone */}
           <div
             {...getRootProps()}
             className={`dropzone ${isDragActive ? "dropzone--active" : ""} ${file ? "dropzone--has-file" : ""}`}
@@ -119,13 +158,12 @@ const UploadDocument = () => {
                     : "Drag & drop a file, or click to browse"}
                 </p>
                 <p className="dropzone-hint">
-                  PDF, Word (.docx), JPG, PNG — max {MAX_FILE_SIZE_MB}MB
+                  PDF lang — max {MAX_FILE_SIZE_MB}MB
                 </p>
               </div>
             )}
           </div>
 
-          {/* Form */}
           <div className="upload-form">
             <div className="form-group">
               <label>
@@ -164,20 +202,13 @@ const UploadDocument = () => {
               <p>📍 Barangay: <strong>{userProfile?.barangayName}</strong></p>
             </div>
 
-            {error && (
-              <div className="upload-error">⚠️ {error}</div>
-            )}
+            {error && <div className="upload-error">⚠️ {error}</div>}
 
             {uploading && (
               <div className="progress-bar-wrapper">
-                <div className="progress-label">
-                  Uploading to Firebase... {progress}%
-                </div>
+                <div className="progress-label">Uploading... {progress}%</div>
                 <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width:`${progress}%` }}
-                  />
+                  <div className="progress-fill" style={{ width:`${progress}%` }} />
                 </div>
               </div>
             )}

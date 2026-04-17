@@ -9,18 +9,8 @@ import DeleteConfirmModal from "../../components/shared/DeleteConfirmModal.jsx";
 import { Upload, Eye, Trash2, FileText } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 
-const getOpenUrl = (doc) => {
-  const isWord =
-    doc.fileType === "application/msword" ||
-    doc.fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    doc.fileName?.endsWith(".doc") ||
-    doc.fileName?.endsWith(".docx");
-
-  if (isWord) {
-    return `https://docs.google.com/gview?url=${encodeURIComponent(doc.fileUrl)}&embedded=false`;
-  }
-  return doc.fileUrl;
-};
+// Direct public URL — Supabase serves PDF inline in browser
+const getOpenUrl = (doc) => doc.fileUrl || "";
 
 const BarangayDocuments = () => {
   const { userProfile, isAdmin, barangayId } = useAuth();

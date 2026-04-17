@@ -1,25 +1,21 @@
 // src/firebase/storageService.js
-// Using Cloudinary for file storage (free tier)
+// Using Supabase Storage for file storage (free tier)
 
-const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+import { createClient } from "@supabase/supabase-js";
 
-const makePublicUrl = (secureUrl) => {
-  // Force public access by adding fl_attachment flag
-  return secureUrl.replace("/upload/", "/upload/fl_attachment/");
-};
+const supabaseUrl    = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const BUCKET = "documents";
 
 export const uploadFile = (file, barangayId, category, onProgress) => {
   return new Promise((resolve, reject) => {
-    if (!CLOUD_NAME || !UPLOAD_PRESET) {
-      reject(new Error("Cloudinary config missing — check environment variables"));
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", UPLOAD_PRESET);
-    formData.append("folder", `sb-cuenca/${barangayId}/${category}`);
+    const timestamp = Date.now();
+    const fileName  = `${timestamp}_${file.name}`;
+    const filePath  = `${barangayId}/${category}/${fileName}`;
+    const uploadUrl = `${supabaseUrl}/storage/v1/object/${BUCKET}/${filePath}`;
 
     const xhr = new XMLHttpRequest();
 
@@ -32,14 +28,14 @@ export const uploadFile = (file, barangayId, category, onProgress) => {
 
     xhr.addEventListener("load", () => {
       if (xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText);
+        // Public URL — bubukas ng direkta sa browser
+        const publicUrl = `${supabaseUrl}/storage/v1/object/public/${BUCKET}/${filePath}`;
         resolve({
-          url: makePublicUrl(response.secure_url),
-          path: response.public_id,
+          url:  publicUrl,
+          path: filePath,
         });
       } else {
-        const errBody = JSON.parse(xhr.responseText);
-        console.error("[Cloudinary] Upload error response:", errBody);
+        console.error("[Supabase] Upload error:", xhr.responseText);
         reject(new Error("Upload failed: " + xhr.responseText));
       }
     });
@@ -48,14 +44,17 @@ export const uploadFile = (file, barangayId, category, onProgress) => {
       reject(new Error("Upload failed — network error"));
     });
 
-    xhr.open(
-      "POST",
-      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`
-    );
-    xhr.send(formData);
+    xhr.open("POST", uploadUrl);
+    xhr.setRequestHeader("Authorization", `Bearer ${supabaseAnonKey}`);
+    xhr.setRequestHeader("Content-Type", file.type);
+    xhr.setRequestHeader("x-upsert", "true");
+    xhr.send(file);
   });
 };
 
-export const deleteFile = async (publicId) => {
-  console.log("File delete noted:", publicId);
+export const deleteFile = async (filePath) => {
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .remove([filePath]);
+  if (error) console.error("[Supabase] Delete error:", error);
 };

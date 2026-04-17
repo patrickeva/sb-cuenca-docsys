@@ -10,18 +10,8 @@ import { Search, FileText, MapPin, Eye, Pencil, Trash2 } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 import "./AdminDocuments.css";
 
-const getOpenUrl = (doc) => {
-  const isWord =
-    doc.fileType === "application/msword" ||
-    doc.fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    doc.fileName?.endsWith(".doc") ||
-    doc.fileName?.endsWith(".docx");
-
-  if (isWord) {
-    return `https://docs.google.com/gview?url=${encodeURIComponent(doc.fileUrl)}&embedded=false`;
-  }
-  return doc.fileUrl;
-};
+// Direct public URL — Supabase serves PDF inline in browser
+const getOpenUrl = (doc) => doc.fileUrl || "";
 
 const AdminDocuments = () => {
   const { userProfile, isAdmin } = useAuth();

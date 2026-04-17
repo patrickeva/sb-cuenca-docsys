@@ -51,12 +51,9 @@ export const CUENCA_BARANGAYS = [
   "San Isidro",
 ];
 
+// PDF lang — bumubukas ng direkta sa browser, may built-in download button
 export const ACCEPTED_FILE_TYPES = {
   "application/pdf": [".pdf"],
-  "application/msword": [".doc"],
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-  "image/jpeg": [".jpg", ".jpeg"],
-  "image/png": [".png"],
 };
 
 export const MAX_FILE_SIZE_MB = 50;

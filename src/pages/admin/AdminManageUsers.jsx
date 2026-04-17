@@ -5,10 +5,10 @@ import {
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, initializeAuth, browserLocalPersistence } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { db, auth } from "../../firebase/config.js";
+import { db } from "../../firebase/config.js";
 import { CUENCA_BARANGAYS } from "../../utils/constants.js";
 import { formatDate } from "../../utils/helpers.js";
-import { Users, Plus, Trash2 } from "lucide-react";
+import { Users, Plus } from "lucide-react";
 import "../../components/shared/MainLayout.css";
 import "../../components/shared/Modal.css";
 
@@ -26,6 +26,22 @@ const secondaryApp  = initializeApp(firebaseConfig, "secondary");
 const secondaryAuth = initializeAuth(secondaryApp, {
   persistence: browserLocalPersistence,
 });
+
+// Friendly error messages para sa Firebase Auth errors
+const getFriendlyError = (code) => {
+  switch (code) {
+    case "auth/email-already-in-use":
+      return "This email address is already registered. Please use a different email.";
+    case "auth/invalid-email":
+      return "The email address is not valid. Please check and try again.";
+    case "auth/weak-password":
+      return "Password is too weak. Please use at least 6 characters.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your internet connection and try again.";
+    default:
+      return "Something went wrong. Please try again.";
+  }
+};
 
 const EMPTY_FORM = {
   displayName:  "",
@@ -58,12 +74,23 @@ const AdminManageUsers = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
     if (!form.displayName || !form.email || !form.password) {
       setError("Please fill in all fields."); return;
     }
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters."); return;
     }
+
+    // Check if email already exists in users list
+    const emailExists = users.some(
+      (u) => u.email?.toLowerCase() === form.email.toLowerCase()
+    );
+    if (emailExists) {
+      setError("This email address is already registered. Please use a different email.");
+      return;
+    }
+
     setSaving(true);
     try {
       const cred = await createUserWithEmailAndPassword(
@@ -93,16 +120,19 @@ const AdminManageUsers = () => {
         createdAt:    serverTimestamp(),
       });
 
-      setSuccess(`Account created successfully for ${form.barangayName}!`);
+      setSuccess(`Account created successfully for Brgy. ${form.barangayName}!`);
       setForm(EMPTY_FORM);
-      setShowForm(false); // ← ito ang idinagdag
+      setShowForm(false);
       fetchUsers();
     } catch (err) {
-      setError("Error: " + err.message);
+      // Show friendly error message instead of raw Firebase error
+      const friendly = getFriendlyError(err.code);
+      setError(friendly);
     } finally {
       setSaving(false);
     }
   };
+
   if (loading) return (
     <div className="loading-screen">
       <div className="spinner" />
@@ -124,7 +154,7 @@ const AdminManageUsers = () => {
             Create and manage barangay accounts. ({users.length} accounts)
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setShowForm(true); setSuccess(""); }}>
+        <button className="btn btn-primary" onClick={() => { setShowForm(true); setSuccess(""); setError(""); }}>
           <Plus size={16} /> Add Barangay Account
         </button>
       </div>
@@ -140,11 +170,11 @@ const AdminManageUsers = () => {
       )}
 
       {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+        <div className="modal-overlay" onClick={() => { setShowForm(false); setError(""); }}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">Create Barangay Account</h3>
-              <button className="modal-close" onClick={() => setShowForm(false)}>✕</button>
+              <button className="modal-close" onClick={() => { setShowForm(false); setError(""); }}>✕</button>
             </div>
             <form onSubmit={handleCreate}>
               <div className="modal-body">
@@ -175,10 +205,15 @@ const AdminManageUsers = () => {
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })} />
                 </div>
+
                 {error && (
-                  <p style={{ margin:0, color:"#ef4444", fontSize:"0.875rem" }}>
+                  <div style={{
+                    background:"#fef2f2", border:"1px solid #fecaca",
+                    borderRadius:8, padding:"0.6rem 0.85rem",
+                    color:"#dc2626", fontSize:"0.85rem",
+                  }}>
                     ⚠️ {error}
-                  </p>
+                  </div>
                 )}
                 {saving && (
                   <p style={{ margin:0, color:"#3b82f6", fontSize:"0.875rem" }}>
