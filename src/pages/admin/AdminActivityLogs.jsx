@@ -4,19 +4,34 @@ import { formatDate } from "../../utils/helpers.js";
 import "../../components/shared/MainLayout.css";
 
 const ACTION_ICONS = {
-  UPLOAD: "⬆️", DELETE: "🗑️", STATUS_CHANGE: "🔄", DEFAULT: "📋",
+  UPLOAD:        "⬆️",
+  DELETE:        "🗑️",
+  STATUS_CHANGE: "🔄",
+  VIEW:          "👁️",
+  LOGIN:         "🔑",
+  LOGOUT:        "🚪",
+  DEFAULT:       "📋",
 };
+
 const ACTION_COLORS = {
   UPLOAD:        { bg:"#d1fae5", text:"#065f46" },
   DELETE:        { bg:"#fee2e2", text:"#991b1b" },
   STATUS_CHANGE: { bg:"#dbeafe", text:"#1e40af" },
+  VIEW:          { bg:"#f3e8ff", text:"#6b21a8" },
+  LOGIN:         { bg:"#fef9c3", text:"#854d0e" },
+  LOGOUT:        { bg:"#f1f5f9", text:"#475569" },
   DEFAULT:       { bg:"#f1f5f9", text:"#374151" },
 };
 
+const ALL_ACTIONS = ["UPLOAD", "DELETE", "STATUS_CHANGE", "VIEW", "LOGIN", "LOGOUT"];
+
 const AdminActivityLogs = () => {
-  const [logs,    setLogs]    = useState([]);
-  const [search,  setSearch]  = useState("");
-  const [loading, setLoading] = useState(true);
+  const [logs,         setLogs]         = useState([]);
+  const [search,       setSearch]       = useState("");
+  const [filterAction, setFilterAction] = useState("");
+  const [dateFrom,     setDateFrom]     = useState("");
+  const [dateTo,       setDateTo]       = useState("");
+  const [loading,      setLoading]      = useState(true);
 
   useEffect(() => {
     getActivityLogs().then((data) => {
@@ -25,11 +40,24 @@ const AdminActivityLogs = () => {
     });
   }, []);
 
-  const filtered = logs.filter((l) =>
-    l.description?.toLowerCase().includes(search.toLowerCase()) ||
-    l.barangayName?.toLowerCase().includes(search.toLowerCase()) ||
-    l.userName?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = logs.filter((l) => {
+    const matchSearch =
+      l.description?.toLowerCase().includes(search.toLowerCase()) ||
+      l.barangayName?.toLowerCase().includes(search.toLowerCase()) ||
+      l.userName?.toLowerCase().includes(search.toLowerCase());
+
+    const matchAction = !filterAction || l.action === filterAction;
+
+    const logDate = l.timestamp?.toDate ? l.timestamp.toDate() : null;
+    const matchFrom = !dateFrom || (logDate && logDate >= new Date(dateFrom));
+    const matchTo   = !dateTo   || (logDate && logDate <= new Date(dateTo + "T23:59:59"));
+
+    return matchSearch && matchAction && matchFrom && matchTo;
+  });
+
+  const clearFilters = () => {
+    setSearch(""); setFilterAction(""); setDateFrom(""); setDateTo("");
+  };
 
   if (loading) return (
     <div className="loading-screen">
@@ -48,7 +76,7 @@ const AdminActivityLogs = () => {
         </div>
         <h1 className="page-title">Activity Logs</h1>
         <p className="page-subtitle">
-          All system actions — {logs.length} records total.
+          All system actions — <strong>{filtered.length}</strong> of <strong>{logs.length}</strong> records.
         </p>
       </div>
 
@@ -56,6 +84,17 @@ const AdminActivityLogs = () => {
         <input type="text" className="search-input"
           placeholder="🔍  Search by action, user, or barangay..."
           value={search} onChange={(e) => setSearch(e.target.value)} />
+        <select value={filterAction} onChange={(e) => setFilterAction(e.target.value)}>
+          <option value="">All Actions</option>
+          {ALL_ACTIONS.map((a) => (
+            <option key={a} value={a}>
+              {ACTION_ICONS[a]} {a}
+            </option>
+          ))}
+        </select>
+        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+        <input type="date" value={dateTo}   onChange={(e) => setDateTo(e.target.value)} />
+        <button className="btn btn-secondary btn-sm" onClick={clearFilters}>Clear</button>
       </div>
 
       <div className="card" style={{ padding:0 }}>

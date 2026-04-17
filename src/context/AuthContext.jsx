@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config.js";
+import { addActivityLog } from "../firebase/firestoreService.js";
 
 const AuthContext = createContext(null);
 
@@ -11,7 +12,6 @@ const fetchProfileWithRetry = async (uid, retries = 5, delay = 800) => {
     if (snap.exists()) {
       return { id: snap.id, ...snap.data() };
     }
-    // Hindi pa nandoon ang document — hintayin bago ulitin
     await new Promise((res) => setTimeout(res, delay));
   }
   return null;
@@ -29,6 +29,18 @@ export const AuthProvider = ({ children }) => {
         try {
           const profile = await fetchProfileWithRetry(firebaseUser.uid);
           setUserProfile(profile);
+
+          // Log LOGIN action
+          if (profile) {
+            await addActivityLog({
+              action:       "LOGIN",
+              description:  `${profile.displayName} logged in`,
+              barangayId:   profile.barangayId || null,
+              barangayName: profile.barangayName || null,
+              userId:       profile.id,
+              userName:     profile.displayName,
+            });
+          }
         } catch (error) {
           console.error("Error fetching profile:", error);
           setUserProfile(null);
@@ -43,6 +55,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
+    // Log LOGOUT action before signing out
+    if (userProfile) {
+      await addActivityLog({
+        action:       "LOGOUT",
+        description:  `${userProfile.displayName} logged out`,
+        barangayId:   userProfile.barangayId || null,
+        barangayName: userProfile.barangayName || null,
+        userId:       userProfile.id,
+        userName:     userProfile.displayName,
+      });
+    }
     await signOut(auth);
     setCurrentUser(null);
     setUserProfile(null);

@@ -7,6 +7,7 @@ import { filterDocuments, formatDate, formatFileSize } from "../../utils/helpers
 import StatusModal from "../../components/admin/StatusModal.jsx";
 import DeleteConfirmModal from "../../components/shared/DeleteConfirmModal.jsx";
 import { Search, FileText, MapPin, Eye, Download, Pencil, Trash2 } from "lucide-react";
+import { addActivityLog } from "../../firebase/firestoreService.js";
 import "../../components/shared/MainLayout.css";
 import "./AdminDocuments.css";
 
@@ -27,6 +28,19 @@ const handleDownload = async (doc) => {
   } catch (err) {
     console.error("Download failed:", err);
   }
+};
+
+const handleView = async (doc, userProfile) => {
+  window.open(doc.fileUrl || "", "_blank", "noreferrer");
+  await addActivityLog({
+    action:       "VIEW",
+    description:  `Viewed document: ${doc.fileName}`,
+    barangayId:   doc.barangayId,
+    barangayName: doc.barangayName,
+    userId:       userProfile?.id,
+    userName:     userProfile?.displayName,
+    documentId:   doc.id,
+  });
 };
 
 const AdminDocuments = () => {
@@ -145,10 +159,10 @@ const AdminDocuments = () => {
               </div>
               <div className="adoc-card__date">{formatDate(doc.uploadedAt)}</div>
               <div className="adoc-card__actions">
-                <a href={getViewUrl(doc)} target="_blank" rel="noreferrer"
-                  className="btn btn-secondary btn-sm">
+                <button className="btn btn-secondary btn-sm"
+                  onClick={() => handleView(doc, userProfile)}>
                   <Eye size={13} /> View
-                </a>
+                </button>
                 <button className="btn btn-secondary btn-sm"
                   onClick={() => handleDownload(doc)}>
                   <Download size={13} /> Download
@@ -217,10 +231,10 @@ const AdminDocuments = () => {
                   </td>
                   <td>
                     <div className="adocs-actions">
-                      <a href={getViewUrl(doc)} target="_blank" rel="noreferrer"
-                        className="btn btn-secondary btn-sm">
+                      <button className="btn btn-secondary btn-sm"
+                        onClick={() => handleView(doc, userProfile)}>
                         <Eye size={13} /> View
-                      </a>
+                      </button>
                       <button className="btn btn-secondary btn-sm"
                         onClick={() => handleDownload(doc)}>
                         <Download size={13} /> Download
