@@ -7,6 +7,9 @@
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .section-header {
@@ -42,12 +45,13 @@
   transition: border-color 0.2s, box-shadow 0.2s;
   font-family: inherit;
   background: #f9fafb;
+  width: 100%;
 }
 
 .form-group input:focus {
   border-color: #2563eb;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
 }
 
 .member-list { display: flex; flex-direction: column; gap: 0.625rem; }
@@ -75,7 +79,7 @@
 .member-row input:focus {
   border-color: #2563eb;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
 }
 
 .remove-btn {
@@ -96,7 +100,7 @@
 
 .remove-btn:hover { background: #fee2e2; }
 
-/* ── Single Save Bar at bottom ─────────────── */
+/* ── Save Bar ───────────────────────────────── */
 .profile-save-bar {
   display: flex;
   justify-content: flex-end;
@@ -119,6 +123,34 @@
   align-items: center;
   gap: 0.4rem;
 }
+
+/* ── Change Password ───────────────────────── */
+.pass-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pass-input-wrap input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.pass-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.pass-toggle:hover { color: #374151; }
 
 @media (max-width: 640px) {
   .member-row { grid-template-columns: 1fr; }
