@@ -55,13 +55,15 @@ const LoginPage = () => {
         <div className="login-left__bg" />
         <div className="login-left__content">
           <div className="login-seal">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-              <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"
-                stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <div className="login-seal__item">
+              <img src="/logo.png" alt="Bayan ng Cuenca Logo" className="login-seal__img" />
+            </div>
+            <div className="login-seal__item">
+              <img src="/sb logo.png" alt="Sangguniang Bayan Logo" className="login-seal__img" />
+            </div>
           </div>
-          <h1 className="login-left__title">Cuenca Docs</h1>
-          <p className="login-left__sub">Sangguniang Bayan ng<br/>Cuenca, Batangas</p>
+          <h1 className="login-left__title">Sangguniang Bayan</h1>
+          <p className="login-left__sub"><br/>Legislative Tracking System</p>
 
           <div className="login-left__divider" />
 

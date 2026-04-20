@@ -2,6 +2,13 @@
 
 * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
 
+/* Custom CSS property for animating conic-gradient rotation */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 /* ── Page ──────────────────────────────────── */
 .login-page {
   min-height: 100vh;
@@ -27,7 +34,6 @@
   background: linear-gradient(160deg, #0d1f3c 0%, #0f2a50 40%, #091628 100%);
 }
 
-/* Grid texture */
 .login-left__bg::before {
   content: '';
   position: absolute;
@@ -38,7 +44,6 @@
   background-size: 40px 40px;
 }
 
-/* Glow blobs */
 .login-left__bg::after {
   content: '';
   position: absolute;
@@ -55,28 +60,127 @@
   width: 100%;
 }
 
-/* Seal/Logo */
+/* ── Seal/Logos (Circular with Animated Ring) ─ */
 .login-seal {
-  width: 72px;
-  height: 72px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-  border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.login-seal__item {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  background: #ffffff;          /* white circle — para kita lahat ng details ng logo */
+  border-radius: 50%;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;           /* creates stacking context for pseudo-elements */
   box-shadow:
-    0 0 0 6px rgba(255,255,255,0.03),
-    0 8px 32px rgba(0,0,0,0.3);
-  animation: sealIn 0.6s cubic-bezier(0.22,1,0.36,1);
+    0 0 0 1px rgba(255,255,255,0.2),
+    0 12px 32px rgba(0,0,0,0.5);
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  opacity: 0;
+  animation:
+    sealPop 0.7s cubic-bezier(0.22,1,0.36,1) forwards,
+    logoFloat 4s ease-in-out infinite;
 }
 
-@keyframes sealIn {
-  from { opacity:0; transform: scale(0.8) rotate(-10deg); }
-  to   { opacity:1; transform: scale(1) rotate(0); }
+/* Rotating gradient ring around the circle */
+.login-seal__item::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from var(--angle),
+    #3b82f6 0%,
+    #60a5fa 15%,
+    #8b5cf6 30%,
+    #ec4899 45%,
+    #fbbf24 60%,
+    #10b981 75%,
+    #3b82f6 100%
+  );
+  z-index: -1;
+  animation: rotateRing 6s linear infinite;
+  opacity: 0.85;
 }
 
+/* Soft pulsing outer glow */
+.login-seal__item::after {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(96,165,250,0.45) 0%,
+    rgba(139,92,246,0.25) 40%,
+    transparent 70%
+  );
+  z-index: -2;
+  animation: glowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.login-seal__item:nth-child(1) { animation-delay: 0s, 0.9s; }
+.login-seal__item:nth-child(2) { animation-delay: 0.2s, 1.5s; }
+
+.login-seal__item:hover {
+  transform: translateY(-6px) scale(1.08);
+}
+
+.login-seal__item:hover::before {
+  animation-duration: 2s;       /* faster rotation pag hover */
+  opacity: 1;
+}
+
+.login-seal__item:hover::after {
+  background: radial-gradient(
+    circle,
+    rgba(96,165,250,0.7) 0%,
+    rgba(139,92,246,0.4) 40%,
+    transparent 70%
+  );
+}
+
+.login-seal__img {
+  width: 100%;                  /* 100% — kumpleto, walang crop */
+  height: 100%;
+  object-fit: contain;          /* lahat ng details ng seal ay kita */
+  border-radius: 50%;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Animations ────────────────────────────── */
+@keyframes sealPop {
+  0%   { opacity: 0; transform: scale(0.4) rotate(-20deg); }
+  55%  { opacity: 1; transform: scale(1.12) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes rotateRing {
+  to { --angle: 360deg; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50%       { opacity: 1;    transform: scale(1.12); }
+}
+
+/* ── Title / Subtitle ──────────────────────── */
 .login-left__title {
   font-size: 2.25rem;
   font-weight: 800;
@@ -84,7 +188,7 @@
   margin: 0 0 0.5rem;
   letter-spacing: -0.04em;
   line-height: 1.1;
-  animation: slideUp 0.5s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+  animation: slideUp 0.5s 0.15s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 .login-left__sub {
@@ -93,7 +197,7 @@
   margin: 0;
   font-weight: 500;
   line-height: 1.6;
-  animation: slideUp 0.5s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+  animation: slideUp 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 @keyframes slideUp {
@@ -112,7 +216,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  animation: slideUp 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+  animation: slideUp 0.5s 0.25s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 .login-feature {
@@ -141,7 +245,7 @@
 
 .login-left__footer {
   margin-top: 3rem;
-  animation: slideUp 0.5s 0.25s cubic-bezier(0.22,1,0.36,1) both;
+  animation: slideUp 0.5s 0.3s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 .login-left__badge {
@@ -185,7 +289,6 @@
   position: relative;
 }
 
-/* Subtle pattern on right */
 .login-right::before {
   content: '';
   position: absolute;
@@ -405,7 +508,9 @@
     padding: 2rem 1.5rem 1.5rem;
   }
 
-  .login-seal { width: 52px; height: 52px; border-radius: 14px; margin-bottom: 1rem; }
+  .login-seal { gap: 1rem; margin-bottom: 1.25rem; justify-content: center; }
+  .login-seal__item { width: 120px; height: 120px; padding: 4px; }
+
   .login-left__title { font-size: 1.6rem; }
   .login-left__features { display: none; }
   .login-left__footer { margin-top: 1.25rem; }
@@ -422,4 +527,5 @@
 @media (max-width: 480px) {
   .login-form-wrap { max-width: 100%; }
   .login-form-title { font-size: 1.5rem; }
+  .login-seal__item { width: 104px; height: 104px; }
 }
