@@ -129,13 +129,6 @@ const LoginPage = () => {
               </div>
               <p className="login-motto__attr">Sangguniang Bayan ng Cuenca</p>
             </div>
-
-            <div className="login-left__footer">
-              <div className="login-left__badge">
-                <span className="login-left__badge-dot" />
-                Sangguniang Bayan Tracking System
-              </div>
-            </div>
           </div>
 
         </div>
@@ -143,6 +136,47 @@ const LoginPage = () => {
 
       {/* Right Panel — Form */}
       <div className="login-right">
+        <div className="login-right__pattern" />
+
+        {/* Rotating concentric circles — top right */}
+        <svg className="login-right__shape" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="45" stroke="#2563eb" strokeWidth="1" strokeDasharray="3 4"/>
+          <circle cx="50" cy="50" r="30" stroke="#2563eb" strokeWidth="1"/>
+          <circle cx="50" cy="50" r="15" stroke="#2563eb" strokeWidth="1" strokeDasharray="2 3"/>
+          <circle cx="50" cy="50" r="3" fill="#2563eb"/>
+        </svg>
+
+        {/* Hexagonal shape — bottom right */}
+        <svg className="login-right__shape-2" viewBox="0 0 100 100" fill="none">
+          <polygon points="50,5 90,27 90,73 50,95 10,73 10,27" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="4 5"/>
+          <polygon points="50,25 72,37 72,63 50,75 28,63 28,37" stroke="#7c3aed" strokeWidth="1"/>
+          <circle cx="50" cy="50" r="5" fill="#7c3aed"/>
+        </svg>
+
+        {/* Triangle/pyramid — top left */}
+        <svg className="login-right__shape-3" viewBox="0 0 100 100" fill="none">
+          <polygon points="50,10 90,85 10,85" stroke="#2563eb" strokeWidth="1.5" strokeDasharray="3 3"/>
+          <polygon points="50,30 75,77 25,77" stroke="#2563eb" strokeWidth="1"/>
+        </svg>
+
+        {/* Diamond accent — middle left */}
+        <svg className="login-right__accent" viewBox="0 0 100 100" fill="none">
+          <rect x="20" y="20" width="60" height="60" stroke="#f59e0b" strokeWidth="2" strokeDasharray="2 2"/>
+          <rect x="35" y="35" width="30" height="30" stroke="#f59e0b" strokeWidth="1.5"/>
+        </svg>
+
+        {/* Sparkle dots scattered */}
+        <div className="login-right__sparkles">
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+          <div className="login-right__sparkle" />
+        </div>
+
         <div className="login-form-wrap">
           <div className="login-form-header">
             <h2 className="login-form-title">Welcome back</h2>

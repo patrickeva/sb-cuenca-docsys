@@ -17,7 +17,7 @@
 
 /* ── Left Panel ────────────────────────────── */
 .login-left {
-  width: 420px;
+  width: 620px;
   min-height: 100vh;
   flex-shrink: 0;
   position: relative;
@@ -255,37 +255,35 @@
   text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
 
-/* ── Civic Motto Card ──────────────────────── */
+/* ── Civic Motto (Transparent — no bg overlay) ── */
 .login-motto {
   width: 100%;
-  padding: 1.35rem 1.25rem 1.2rem;
-  background: rgba(9, 22, 40, 0.62);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.13);
-  border-radius: 12px;
-  margin-bottom: 1.1rem;
+  padding: 0 0.5rem;
+  margin-bottom: 0;
   text-align: center;
-  box-shadow: 0 6px 22px rgba(0,0,0,0.35);
   position: relative;
   animation: slideUp 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 .login-motto__icon {
-  color: rgba(147,197,253,0.55);
+  color: rgba(147,197,253,0.7);
   margin-bottom: 0.55rem;
   display: inline-block;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
 }
 
 .login-motto__text {
   font-size: 0.92rem;
-  font-weight: 500;
+  font-weight: 600;
   font-style: italic;
   color: #ffffff;
   line-height: 1.55;
   margin: 0 0 0.85rem;
   letter-spacing: 0.005em;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  text-shadow:
+    0 2px 10px rgba(0,0,0,0.85),
+    0 1px 3px rgba(0,0,0,0.9),
+    0 0 20px rgba(0,0,0,0.6);
 }
 
 .login-motto__divider {
@@ -293,18 +291,18 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.6rem;
 }
 
 .login-motto__line {
   width: 36px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
 }
 
 .login-motto__star {
-  color: rgba(251,191,36,0.85);
-  filter: drop-shadow(0 0 6px rgba(251,191,36,0.4));
+  color: rgba(251,191,36,0.95);
+  filter: drop-shadow(0 0 8px rgba(251,191,36,0.6));
   animation: starTwinkle 3s ease-in-out infinite;
 }
 
@@ -316,10 +314,11 @@
 .login-motto__attr {
   font-size: 0.62rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255,255,255,0.85);
   text-transform: uppercase;
   letter-spacing: 0.18em;
   margin: 0;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
 /* ── Footer Badge ──────────────────────────── */
@@ -363,32 +362,212 @@
   50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0.05); }
 }
 
-/* ── Right Panel ───────────────────────────── */
+/* ── Right Panel (Enhanced Decorative Background) ────── */
 .login-right {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
+  background:
+    radial-gradient(ellipse 600px 500px at 85% 15%, rgba(191,219,254,0.75) 0%, transparent 55%),
+    radial-gradient(ellipse 600px 500px at 15% 85%, rgba(221,214,254,0.65) 0%, transparent 55%),
+    radial-gradient(ellipse 500px 400px at 50% 50%, rgba(254,243,199,0.35) 0%, transparent 60%),
+    linear-gradient(135deg, #f0f7ff 0%, #eef2ff 40%, #faf5ff 100%);
   padding: 2rem;
   position: relative;
+  overflow: hidden;
 }
 
+/* Large floating blob - top right (blue) */
 .login-right::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(37,99,235,0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+  top: -150px;
+  right: -150px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96,165,250,0.35) 0%, rgba(147,197,253,0.15) 50%, transparent 75%);
+  animation: blobFloat1 18s ease-in-out infinite;
   pointer-events: none;
+  filter: blur(20px);
 }
 
+/* Large floating blob - bottom left (purple) */
+.login-right::after {
+  content: '';
+  position: absolute;
+  bottom: -180px;
+  left: -180px;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167,139,250,0.32) 0%, rgba(196,181,253,0.15) 50%, transparent 75%);
+  animation: blobFloat2 22s ease-in-out infinite;
+  pointer-events: none;
+  filter: blur(20px);
+}
+
+@keyframes blobFloat1 {
+  0%, 100% { transform: translate(0, 0)        scale(1);    }
+  33%       { transform: translate(-50px, 40px) scale(1.12); }
+  66%       { transform: translate(40px, -30px) scale(0.92); }
+}
+
+@keyframes blobFloat2 {
+  0%, 100% { transform: translate(0, 0)        scale(1);    }
+  33%       { transform: translate(50px, -40px) scale(1.15); }
+  66%       { transform: translate(-30px, 25px) scale(0.9);  }
+}
+
+/* Decorative dot grid overlay */
+.login-right__pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(37,99,235,0.1) 1.2px, transparent 1.2px);
+  background-size: 26px 26px;
+  pointer-events: none;
+  opacity: 0.7;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+}
+
+/* Rotating concentric circles - top right */
+.login-right__shape {
+  position: absolute;
+  top: 2.5rem;
+  right: 2.5rem;
+  width: 140px;
+  height: 140px;
+  opacity: 0.18;
+  pointer-events: none;
+  animation: shapeRotate 40s linear infinite;
+  z-index: 0;
+}
+
+@keyframes shapeRotate {
+  to { transform: rotate(360deg); }
+}
+
+/* NEW: Counter-rotating shape - bottom right */
+.login-right__shape-2 {
+  position: absolute;
+  bottom: 3rem;
+  right: 8%;
+  width: 90px;
+  height: 90px;
+  opacity: 0.15;
+  pointer-events: none;
+  animation: shapeRotateReverse 50s linear infinite;
+  z-index: 0;
+}
+
+@keyframes shapeRotateReverse {
+  to { transform: rotate(-360deg); }
+}
+
+/* NEW: Small decorative shape - top left */
+.login-right__shape-3 {
+  position: absolute;
+  top: 5rem;
+  left: 4rem;
+  width: 70px;
+  height: 70px;
+  opacity: 0.18;
+  pointer-events: none;
+  animation: shapeFloat 8s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes shapeFloat {
+  0%, 100% { transform: translate(0, 0)    rotate(0deg);  }
+  50%       { transform: translate(8px, -12px) rotate(8deg); }
+}
+
+/* NEW: Additional small floating accent - middle */
+.login-right__accent {
+  position: absolute;
+  top: 45%;
+  left: 8%;
+  width: 50px;
+  height: 50px;
+  opacity: 0.2;
+  pointer-events: none;
+  animation: accentFloat 10s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes accentFloat {
+  0%, 100% { transform: translate(0, 0)     rotate(45deg); }
+  50%       { transform: translate(-10px, 15px) rotate(60deg); }
+}
+
+/* NEW: Small sparkle dots scattered around */
+.login-right__sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-right__sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96,165,250,0.8) 0%, transparent 70%);
+  animation: sparkleFade 4s ease-in-out infinite;
+}
+
+.login-right__sparkle:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s;   }
+.login-right__sparkle:nth-child(2) { top: 25%; left: 75%; animation-delay: 0.8s; }
+.login-right__sparkle:nth-child(3) { top: 55%; left: 85%; animation-delay: 1.6s; }
+.login-right__sparkle:nth-child(4) { top: 70%; left: 25%; animation-delay: 2.4s; }
+.login-right__sparkle:nth-child(5) { top: 80%; left: 60%; animation-delay: 3.2s; }
+.login-right__sparkle:nth-child(6) { top: 35%; left: 50%; animation-delay: 1.2s; background: radial-gradient(circle, rgba(167,139,250,0.8) 0%, transparent 70%); }
+.login-right__sparkle:nth-child(7) { top: 60%; left: 15%; animation-delay: 2.8s; background: radial-gradient(circle, rgba(167,139,250,0.8) 0%, transparent 70%); }
+.login-right__sparkle:nth-child(8) { top: 10%; left: 55%; animation-delay: 3.6s; background: radial-gradient(circle, rgba(251,191,36,0.8) 0%, transparent 70%); }
+
+@keyframes sparkleFade {
+  0%, 100% { opacity: 0;   transform: scale(0.5); }
+  50%       { opacity: 1;   transform: scale(1.4); }
+}
+
+/* ── Form Wrap with Glass Hover Effect ─────── */
 .login-form-wrap {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   position: relative;
   z-index: 1;
+  padding: 2.5rem 2.25rem;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.5s ease,
+    backdrop-filter 0.5s ease,
+    border-color 0.5s ease;
   animation: formIn 0.55s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.login-form-wrap:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: rgba(147, 197, 253, 0.5);
+  box-shadow:
+    0 20px 60px rgba(37, 99, 235, 0.12),
+    0 8px 24px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 @keyframes formIn {
@@ -567,17 +746,22 @@
   .login-greeting { margin-top: 1rem; padding-top: 0.85rem; }
   .login-greeting__hello { font-size: 0.95rem; }
 
-  .login-motto { padding: 1.1rem 1rem; margin-bottom: 0.85rem; }
   .login-motto__text { font-size: 0.85rem; line-height: 1.5; }
   .login-motto__icon { width: 22px; height: 22px; }
   .login-motto__attr { font-size: 0.58rem; letter-spacing: 0.15em; }
 
-  .login-right { flex: 1; padding: 1.5rem; background: #ffffff; }
-  .login-right::before { display: none; }
+  .login-right { flex: 1; padding: 1.5rem; }
+  .login-right__pattern { opacity: 0.3; }
+  .login-right__shape,
+  .login-right__shape-2,
+  .login-right__shape-3,
+  .login-right__accent { display: none; }
+  .login-right__sparkles { display: none; }
+  .login-form-wrap { padding: 2rem 1.5rem; }
 }
 
 @media (max-width: 480px) {
-  .login-form-wrap { max-width: 100%; }
+  .login-form-wrap { max-width: 100%; padding: 1.75rem 1.25rem; }
   .login-form-title { font-size: 1.5rem; }
   .login-seal__item { width: 88px; height: 88px; }
 }
