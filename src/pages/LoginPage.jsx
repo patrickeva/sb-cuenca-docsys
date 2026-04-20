@@ -99,7 +99,7 @@ const LoginPage = () => {
           <div className="login-left__footer">
             <div className="login-left__badge">
               <span className="login-left__badge-dot" />
-              PH Official Government Portal
+              Sangguniang Bayan Tracking System
             </div>
           </div>
         </div>

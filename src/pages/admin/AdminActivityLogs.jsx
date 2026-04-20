@@ -4,13 +4,13 @@ import { formatDate } from "../../utils/helpers.js";
 import "../../components/shared/MainLayout.css";
 
 const ACTION_ICONS = {
-  UPLOAD:        "⬆️",
-  DELETE:        "🗑️",
-  STATUS_CHANGE: "🔄",
-  VIEW:          "👁️",
-  LOGIN:         "🔑",
-  LOGOUT:        "🚪",
-  DEFAULT:       "📋",
+  UPLOAD:        "Upload",
+  DELETE:        "Delete",
+  STATUS_CHANGE: "Status Change",
+  VIEW:          "View",
+  LOGIN:         "Login",
+  LOGOUT:        "Logout",
+  DEFAULT:       "Action",
 };
 
 const ACTION_COLORS = {
@@ -88,7 +88,7 @@ const AdminActivityLogs = () => {
           <option value="">All Actions</option>
           {ALL_ACTIONS.map((a) => (
             <option key={a} value={a}>
-              {ACTION_ICONS[a]} {a}
+              {a.replace("_"," ")}
             </option>
           ))}
         </select>
@@ -131,7 +131,7 @@ const AdminActivityLogs = () => {
                         padding:"0.2rem 0.6rem", borderRadius:"999px",
                         fontSize:"0.75rem", fontWeight:600, whiteSpace:"nowrap",
                       }}>
-                        {ACTION_ICONS[log.action] || ACTION_ICONS.DEFAULT} {log.action}
+                        {ACTION_ICONS[log.action] || ACTION_ICONS.DEFAULT}
                       </span>
                     </td>
                     <td style={{ maxWidth:280, wordBreak:"break-word" }}>
