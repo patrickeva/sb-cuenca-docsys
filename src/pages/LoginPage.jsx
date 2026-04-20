@@ -1,5 +1,5 @@
 // src/pages/LoginPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, getUserProfile } from "../firebase/authService.js";
 import "./LoginPage.css";
@@ -23,6 +23,33 @@ const getFriendlyError = (code) => {
   }
 };
 
+/* ── Helpers ─────────────────────────────────── */
+const PH_DAYS   = ["Linggo", "Lunes", "Martes", "Miyerkules", "Huwebes", "Biyernes", "Sabado"];
+const PH_MONTHS = ["Enero", "Pebrero", "Marso", "Abril", "Mayo", "Hunyo",
+                   "Hulyo", "Agosto", "Setyembre", "Oktubre", "Nobyembre", "Disyembre"];
+
+const getGreeting = (d) => {
+  const h = d.getHours();
+  if (h < 12) return "Magandang Umaga";
+  if (h < 18) return "Magandang Hapon";
+  return "Magandang Gabi";
+};
+
+const formatPhDate = (d) =>
+  `${PH_DAYS[d.getDay()]} · ${PH_MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+
+const formatTime = (d) => {
+  let h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m} ${ampm}`;
+};
+
+/* ── Animated count-up component ─────────────── */
+// (Removed — replaced stats with civic motto)
+
+/* ── Main Component ──────────────────────────── */
 const LoginPage = () => {
   const navigate = useNavigate();
   const [email,    setEmail]    = useState("");
@@ -30,6 +57,13 @@ const LoginPage = () => {
   const [showPass, setShowPass] = useState(false);
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
+
+  /* Live clock — updates every minute */
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(t);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -54,56 +88,56 @@ const LoginPage = () => {
       <div className="login-left">
         <div className="login-left__bg" />
         <div className="login-left__content">
-          <div className="login-seal">
-            <div className="login-seal__item">
-              <img src="/logo.png" alt="Bayan ng Cuenca Logo" className="login-seal__img" />
-            </div>
-            <div className="login-seal__item">
-              <img src="/sb logo.png" alt="Sangguniang Bayan Logo" className="login-seal__img" />
-            </div>
-          </div>
-          <h1 className="login-left__title">Sangguniang Bayan</h1>
-          <p className="login-left__sub"><br/>Legislative Tracking System</p>
 
-          <div className="login-left__divider" />
+          {/* TOP — Logos + Title + Greeting */}
+          <div className="login-left__top">
+            <div className="login-seal">
+              <div className="login-seal__item">
+                <img src="/logo.png" alt="Bayan ng Cuenca Logo" className="login-seal__img" />
+              </div>
+              <div className="login-seal__item">
+                <img src="/sb logo.png" alt="Sangguniang Bayan Logo" className="login-seal__img" />
+              </div>
+            </div>
+            <h1 className="login-left__title">Sangguniang Bayan</h1>
+            <p className="login-left__sub">Legislative Tracking System</p>
 
-          <div className="login-left__features">
-            <div className="login-feature">
-              <div className="login-feature__icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    stroke="rgba(255,255,255,0.7)" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <span>Secure document submission</span>
-            </div>
-            <div className="login-feature">
-              <div className="login-feature__icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z" stroke="rgba(255,255,255,0.7)" strokeWidth="1.6" strokeLinecap="round"/>
-                  <polyline points="13,2 13,9 20,9" stroke="rgba(255,255,255,0.7)" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <span>Real-time document tracking</span>
-            </div>
-            <div className="login-feature">
-              <div className="login-feature__icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.6" strokeLinecap="round"/>
-                  <circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,0.7)" strokeWidth="1.6"/>
-                  <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="rgba(255,255,255,0.7)" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <span>21 barangays connected</span>
+            {/* Live Greeting */}
+            <div className="login-greeting">
+              <p className="login-greeting__hello">{getGreeting(now)}!</p>
+              <p className="login-greeting__date">
+                {formatPhDate(now)} · {formatTime(now)}
+              </p>
             </div>
           </div>
 
-          <div className="login-left__footer">
-            <div className="login-left__badge">
-              <span className="login-left__badge-dot" />
-              Sangguniang Bayan Tracking System
+          {/* BOTTOM — Motto + Badge */}
+          <div className="login-left__bottom">
+            <div className="login-motto">
+              <svg className="login-motto__icon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849h-4v-10h9.983zm14.017 0v7.391c0 5.704-3.748 9.571-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983v-10h9.983z"/>
+              </svg>
+              <p className="login-motto__text">
+                Lingkod-Bayan, Para sa Kapakanan ng Bawat Mamamayan.
+              </p>
+              <div className="login-motto__divider">
+                <span className="login-motto__line" />
+                <svg className="login-motto__star" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0l3.668 8.475 9.232.879-7 6.182 2.1 9.064-7-4.815-7 4.815 2.1-9.064-7-6.182 9.232-.879z"/>
+                </svg>
+                <span className="login-motto__line" />
+              </div>
+              <p className="login-motto__attr">Sangguniang Bayan ng Cuenca</p>
+            </div>
+
+            <div className="login-left__footer">
+              <div className="login-left__badge">
+                <span className="login-left__badge-dot" />
+                Sangguniang Bayan Tracking System
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
