@@ -232,20 +232,21 @@ const AdminDocuments = () => {
                   <td>
                     <div className="adocs-actions">
                       <button className="btn btn-secondary btn-sm"
+                        style={{ flexShrink:0, whiteSpace:"nowrap" }}
                         onClick={() => handleView(doc, userProfile)}>
                         <Eye size={13} /> View
                       </button>
-                      <button className="btn btn-secondary btn-sm"
-                        onClick={() => handleDownload(doc)}>
-                        <Download size={13} /> Download
+                      <button className="btn btn-secondary btn-sm adocs-icon-btn"
+                        onClick={() => handleDownload(doc)} title="Download">
+                        <Download size={13} />
                       </button>
-                      <button className="btn btn-primary btn-sm"
-                        onClick={() => setStatusModal({ open:true, document:doc })}>
-                        <Pencil size={13} /> Update
+                      <button className="btn btn-primary btn-sm adocs-icon-btn"
+                        onClick={() => setStatusModal({ open:true, document:doc })} title="Update Status">
+                        <Pencil size={13} />
                       </button>
-                      <button className="btn btn-danger btn-sm"
-                        onClick={() => setDeleteModal({ open:true, document:doc })}>
-                        <Trash2 size={13} /> Delete
+                      <button className="btn btn-danger btn-sm adocs-icon-btn"
+                        onClick={() => setDeleteModal({ open:true, document:doc })} title="Delete">
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>
