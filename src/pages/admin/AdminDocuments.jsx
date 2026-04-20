@@ -55,6 +55,7 @@ const AdminDocuments = () => {
   const [dateTo,         setDateTo]         = useState("");
   const [statusModal,    setStatusModal]    = useState({ open:false, document:null });
   const [deleteModal,    setDeleteModal]    = useState({ open:false, document:null });
+  const [noteModal,      setNoteModal]      = useState({ open:false, note:"", fileName:"" });
 
   const filtered = filterDocuments(documents, {
     search, category: filterCategory, status: filterStatus, dateFrom, dateTo,
@@ -192,12 +193,13 @@ const AdminDocuments = () => {
               <th>Size</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Review Note</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan="7">
+              <tr><td colSpan="8">
                 <div className="empty-state">
                   <div className="empty-state__icon">🔍</div>
                   <div className="empty-state__text">No documents found.</div>
@@ -230,6 +232,23 @@ const AdminDocuments = () => {
                     </span>
                   </td>
                   <td>
+                    {doc.reviewNote ? (
+                      <button
+                        onClick={() => setNoteModal({ open:true, note:doc.reviewNote, fileName:doc.fileName })}
+                        style={{
+                          background:"#eff6ff", border:"1px solid #bfdbfe",
+                          borderRadius:7, padding:"0.3rem 0.65rem",
+                          fontSize:"0.75rem", color:"#2563eb", fontWeight:600,
+                          cursor:"pointer", whiteSpace:"nowrap", display:"inline-flex",
+                          alignItems:"center", gap:"0.3rem",
+                        }}>
+                        💬 See Note
+                      </button>
+                    ) : (
+                      <span style={{ color:"#cbd5e1", fontSize:"0.78rem" }}>—</span>
+                    )}
+                  </td>
+                  <td>
                     <div className="adocs-actions">
                       <button className="btn btn-secondary btn-sm"
                         style={{ flexShrink:0, whiteSpace:"nowrap" }}
@@ -256,6 +275,36 @@ const AdminDocuments = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Note Preview Modal */}
+      {noteModal.open && (
+        <div className="modal-overlay" onClick={() => setNoteModal({ open:false, note:"", fileName:"" })}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth:480 }}>
+            <div className="modal-header">
+              <h3 className="modal-title">💬 Review Note</h3>
+              <button className="modal-close" onClick={() => setNoteModal({ open:false, note:"", fileName:"" })}>✕</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize:"0.78rem", color:"#94a3b8", marginBottom:"0.75rem", fontWeight:600 }}>
+                {noteModal.fileName}
+              </p>
+              <div style={{
+                background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:10,
+                padding:"1rem", fontSize:"0.9rem", color:"#374151",
+                lineHeight:1.7, whiteSpace:"pre-wrap", wordBreak:"break-word",
+              }}>
+                {noteModal.note}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary"
+                onClick={() => setNoteModal({ open:false, note:"", fileName:"" })}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {statusModal.open && (
         <StatusModal
