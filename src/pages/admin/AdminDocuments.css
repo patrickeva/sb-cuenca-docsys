@@ -59,8 +59,8 @@
 .adocs-table th:nth-child(4) { width: 6%;  }  /* Size */
 .adocs-table th:nth-child(5) { width: 11%; }  /* Date */
 .adocs-table th:nth-child(6) { width: 9%;  }  /* Status */
-.adocs-table th:nth-child(7) { width: 10%; }  /* Review Note */
-.adocs-table th:nth-child(8) { width: 24%; }  /* Actions — wider for 4 buttons */
+.adocs-table th:nth-child(7) { width: 12%; }  /* Notes */
+.adocs-table th:nth-child(8) { width: 22%; }  /* Actions */
 
 .adocs-table thead { background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
 .adocs-table th {

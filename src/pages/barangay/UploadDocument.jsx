@@ -184,12 +184,12 @@ const UploadDocument = () => {
 
             <div className="form-group">
               <label>
-                Description
+                Note to SB Office
                 <span style={{ color:"#9ca3af", fontWeight:400 }}> (optional)</span>
               </label>
               <textarea
                 rows={3}
-                placeholder="Brief description of this document..."
+                placeholder="Leave a message or note for the SB Office..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={uploading}

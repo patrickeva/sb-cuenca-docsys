@@ -68,10 +68,11 @@ export const getAllDocuments = async () => {
   return snap.docs.map(mapDoc);
 };
 
-export const updateDocumentStatus = async (docId, status, reviewNote = "") => {
+export const updateDocumentStatus = async (docId, status, reviewNote = "", reviewedBy = "") => {
   await updateDoc(doc(db, "documents", docId), {
     status,
     reviewNote,
+    reviewedBy,
     reviewedAt: serverTimestamp(),
   });
 };

@@ -5,8 +5,9 @@ import { useDocuments } from "../../hooks/useDocuments.js";
 import { DOCUMENT_CATEGORIES, DOCUMENT_STATUS, STATUS_COLORS, CUENCA_BARANGAYS } from "../../utils/constants.js";
 import { filterDocuments, formatDate, formatFileSize } from "../../utils/helpers.js";
 import StatusModal from "../../components/admin/StatusModal.jsx";
+import NoteViewerModal from "../../components/admin/NoteViewerModal.jsx";
 import DeleteConfirmModal from "../../components/shared/DeleteConfirmModal.jsx";
-import { Search, FileText, MapPin, Eye, Download, Pencil, Trash2 } from "lucide-react";
+import { Search, FileText, MapPin, Eye, Download, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { addActivityLog } from "../../firebase/firestoreService.js";
 import "../../components/shared/MainLayout.css";
 import "./AdminDocuments.css";
@@ -43,6 +44,17 @@ const handleView = async (doc, userProfile) => {
   });
 };
 
+const EMPTY_NOTE_MODAL = {
+  open: false,
+  note: "",
+  fileName: "",
+  reviewedAt: null,
+  reviewedBy: "",
+  status: "Pending",
+  title: "Review Note",
+  authorLabel: "Reviewer",
+};
+
 const AdminDocuments = () => {
   const { userProfile, isAdmin } = useAuth();
   const { documents, loading, changeStatus, removeDocument } = useDocuments(isAdmin, null, userProfile);
@@ -53,22 +65,46 @@ const AdminDocuments = () => {
   const [filterBarangay, setFilterBarangay] = useState("");
   const [dateFrom,       setDateFrom]       = useState("");
   const [dateTo,         setDateTo]         = useState("");
-  const [statusModal,    setStatusModal]    = useState({ open:false, document:null });
-  const [deleteModal,    setDeleteModal]    = useState({ open:false, document:null });
-  const [noteModal,      setNoteModal]      = useState({ open:false, note:"", fileName:"" });
+  const [statusModal,    setStatusModal]    = useState({ open: false, document: null });
+  const [deleteModal,    setDeleteModal]    = useState({ open: false, document: null });
+  const [noteModal,      setNoteModal]      = useState(EMPTY_NOTE_MODAL);
 
   const filtered = filterDocuments(documents, {
     search, category: filterCategory, status: filterStatus, dateFrom, dateTo,
   }).filter((d) => !filterBarangay || d.barangayName === filterBarangay);
 
+  const openReviewNote = (doc) => setNoteModal({
+    open: true,
+    note: doc.reviewNote,
+    fileName: doc.fileName,
+    reviewedAt: doc.reviewedAt,
+    reviewedBy: doc.reviewedBy,
+    status: doc.status,
+    title: "Admin Review Note",
+    authorLabel: "Reviewed By",
+  });
+
+  const openUserNote = (doc) => setNoteModal({
+    open: true,
+    note: doc.description,
+    fileName: doc.fileName,
+    reviewedAt: doc.uploadedAt,
+    reviewedBy: doc.uploadedBy,
+    status: doc.status,
+    title: "User Note",
+    authorLabel: "Submitted By",
+  });
+
+  const closeNoteModal = () => setNoteModal(EMPTY_NOTE_MODAL);
+
   const handleStatusSave = async (status, reviewNote) => {
     await changeStatus(statusModal.document.id, status, reviewNote, statusModal.document);
-    setStatusModal({ open:false, document:null });
+    setStatusModal({ open: false, document: null });
   };
 
   const handleDelete = async () => {
     await removeDocument(deleteModal.document);
-    setDeleteModal({ open:false, document:null });
+    setDeleteModal({ open: false, document: null });
   };
 
   const clearFilters = () => {
@@ -127,7 +163,7 @@ const AdminDocuments = () => {
           </select>
           <div className="adocs-date-wrap">
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-            <span style={{ color:"#94a3b8" }}>→</span>
+            <span style={{ color: "#94a3b8" }}>→</span>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           </div>
           <button className="btn btn-secondary btn-sm" onClick={clearFilters}>Clear</button>
@@ -147,15 +183,15 @@ const AdminDocuments = () => {
             <div key={doc.id} className="adoc-card">
               <div className="adoc-card__top">
                 <div className="adoc-card__icon"><FileText size={16} color="#2563eb" /></div>
-                <span className="status-badge" style={{ background:colors.bg, color:colors.text }}>
-                  <span className="status-dot" style={{ background:colors.dot }} />
+                <span className="status-badge" style={{ background: colors.bg, color: colors.text }}>
+                  <span className="status-dot" style={{ background: colors.dot }} />
                   {doc.status}
                 </span>
               </div>
               <div className="adoc-card__name">{doc.fileName}</div>
               <div className="adoc-card__meta">
                 <span><MapPin size={12} /> {doc.barangayName}</span>
-                <span style={{ textTransform:"capitalize" }}>{doc.category?.replace("_"," ")}</span>
+                <span style={{ textTransform: "capitalize" }}>{doc.category?.replace("_", " ")}</span>
                 <span>{formatFileSize(doc.fileSize)}</span>
               </div>
               <div className="adoc-card__date">{formatDate(doc.uploadedAt)}</div>
@@ -168,12 +204,22 @@ const AdminDocuments = () => {
                   onClick={() => handleDownload(doc)}>
                   <Download size={13} /> Download
                 </button>
+                {doc.description && (
+                  <button className="btn btn-secondary btn-sm" onClick={() => openUserNote(doc)}>
+                    <FileText size={13} /> User Note
+                  </button>
+                )}
+                {doc.reviewNote && (
+                  <button className="btn btn-secondary btn-sm" onClick={() => openReviewNote(doc)}>
+                    <MessageSquare size={13} /> Admin Note
+                  </button>
+                )}
                 <button className="btn btn-primary btn-sm"
-                  onClick={() => setStatusModal({ open:true, document:doc })}>
+                  onClick={() => setStatusModal({ open: true, document: doc })}>
                   <Pencil size={13} /> Update
                 </button>
                 <button className="btn btn-danger btn-sm"
-                  onClick={() => setDeleteModal({ open:true, document:doc })}>
+                  onClick={() => setDeleteModal({ open: true, document: doc })}>
                   <Trash2 size={13} /> Delete
                 </button>
               </div>
@@ -193,7 +239,7 @@ const AdminDocuments = () => {
               <th>Size</th>
               <th>Date</th>
               <th>Status</th>
-              <th>Review Note</th>
+              <th>Notes</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -216,42 +262,60 @@ const AdminDocuments = () => {
                     </div>
                   </td>
                   <td>
-                    <div style={{ display:"flex", alignItems:"center", gap:"0.3rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
                       <MapPin size={12} color="#94a3b8" /> {doc.barangayName}
                     </div>
                   </td>
-                  <td><span className="adocs-category">{doc.category?.replace("_"," ")}</span></td>
-                  <td style={{ color:"#64748b" }}>{formatFileSize(doc.fileSize)}</td>
-                  <td style={{ color:"#64748b", fontSize:"0.8rem", whiteSpace:"nowrap" }}>
+                  <td><span className="adocs-category">{doc.category?.replace("_", " ")}</span></td>
+                  <td style={{ color: "#64748b" }}>{formatFileSize(doc.fileSize)}</td>
+                  <td style={{ color: "#64748b", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
                     {formatDate(doc.uploadedAt)}
                   </td>
                   <td>
-                    <span className="status-badge" style={{ background:colors.bg, color:colors.text }}>
-                      <span className="status-dot" style={{ background:colors.dot }} />
+                    <span className="status-badge" style={{ background: colors.bg, color: colors.text }}>
+                      <span className="status-dot" style={{ background: colors.dot }} />
                       {doc.status}
                     </span>
                   </td>
                   <td>
-                    {doc.reviewNote ? (
-                      <button
-                        onClick={() => setNoteModal({ open:true, note:doc.reviewNote, fileName:doc.fileName })}
-                        style={{
-                          background:"#eff6ff", border:"1px solid #bfdbfe",
-                          borderRadius:7, padding:"0.3rem 0.65rem",
-                          fontSize:"0.75rem", color:"#2563eb", fontWeight:600,
-                          cursor:"pointer", whiteSpace:"nowrap", display:"inline-flex",
-                          alignItems:"center", gap:"0.3rem",
-                        }}>
-                        💬 See Note
-                      </button>
-                    ) : (
-                      <span style={{ color:"#cbd5e1", fontSize:"0.78rem" }}>—</span>
-                    )}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
+                      {doc.description && (
+                        <button
+                          onClick={() => openUserNote(doc)}
+                          style={{
+                            background: "#f0fdf4", border: "1px solid #bbf7d0",
+                            borderRadius: 7, padding: "0.28rem 0.6rem",
+                            fontSize: "0.73rem", color: "#15803d", fontWeight: 700,
+                            cursor: "pointer", whiteSpace: "nowrap", display: "inline-flex",
+                            alignItems: "center", gap: "0.3rem", width: "100%", justifyContent: "center",
+                          }}
+                        >
+                          <FileText size={11} /> User Note
+                        </button>
+                      )}
+                      {doc.reviewNote && (
+                        <button
+                          onClick={() => openReviewNote(doc)}
+                          style={{
+                            background: "#eff6ff", border: "1px solid #bfdbfe",
+                            borderRadius: 7, padding: "0.28rem 0.6rem",
+                            fontSize: "0.73rem", color: "#2563eb", fontWeight: 700,
+                            cursor: "pointer", whiteSpace: "nowrap", display: "inline-flex",
+                            alignItems: "center", gap: "0.3rem", width: "100%", justifyContent: "center",
+                          }}
+                        >
+                          <MessageSquare size={11} /> Admin Note
+                        </button>
+                      )}
+                      {!doc.description && !doc.reviewNote && (
+                        <span style={{ color: "#cbd5e1", fontSize: "0.78rem" }}>—</span>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <div className="adocs-actions">
                       <button className="btn btn-secondary btn-sm"
-                        style={{ flexShrink:0, whiteSpace:"nowrap" }}
+                        style={{ flexShrink: 0, whiteSpace: "nowrap" }}
                         onClick={() => handleView(doc, userProfile)}>
                         <Eye size={13} /> View
                       </button>
@@ -260,11 +324,11 @@ const AdminDocuments = () => {
                         <Download size={13} />
                       </button>
                       <button className="btn btn-primary btn-sm adocs-icon-btn"
-                        onClick={() => setStatusModal({ open:true, document:doc })} title="Update Status">
+                        onClick={() => setStatusModal({ open: true, document: doc })} title="Update Status">
                         <Pencil size={13} />
                       </button>
                       <button className="btn btn-danger btn-sm adocs-icon-btn"
-                        onClick={() => setDeleteModal({ open:true, document:doc })} title="Delete">
+                        onClick={() => setDeleteModal({ open: true, document: doc })} title="Delete">
                         <Trash2 size={13} />
                       </button>
                     </div>
@@ -276,47 +340,30 @@ const AdminDocuments = () => {
         </table>
       </div>
 
-      {/* Note Preview Modal */}
       {noteModal.open && (
-        <div className="modal-overlay" onClick={() => setNoteModal({ open:false, note:"", fileName:"" })}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth:480 }}>
-            <div className="modal-header">
-              <h3 className="modal-title">💬 Review Note</h3>
-              <button className="modal-close" onClick={() => setNoteModal({ open:false, note:"", fileName:"" })}>✕</button>
-            </div>
-            <div className="modal-body">
-              <p style={{ fontSize:"0.78rem", color:"#94a3b8", marginBottom:"0.75rem", fontWeight:600 }}>
-                {noteModal.fileName}
-              </p>
-              <div style={{
-                background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:10,
-                padding:"1rem", fontSize:"0.9rem", color:"#374151",
-                lineHeight:1.7, whiteSpace:"pre-wrap", wordBreak:"break-word",
-              }}>
-                {noteModal.note}
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary"
-                onClick={() => setNoteModal({ open:false, note:"", fileName:"" })}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <NoteViewerModal
+          title={noteModal.title}
+          authorLabel={noteModal.authorLabel}
+          note={noteModal.note}
+          fileName={noteModal.fileName}
+          reviewedAt={noteModal.reviewedAt}
+          reviewedBy={noteModal.reviewedBy}
+          status={noteModal.status}
+          onClose={closeNoteModal}
+        />
       )}
 
       {statusModal.open && (
         <StatusModal
           document={statusModal.document}
-          onClose={() => setStatusModal({ open:false, document:null })}
+          onClose={() => setStatusModal({ open: false, document: null })}
           onSave={handleStatusSave}
         />
       )}
       {deleteModal.open && (
         <DeleteConfirmModal
           fileName={deleteModal.document?.fileName}
-          onClose={() => setDeleteModal({ open:false, document:null })}
+          onClose={() => setDeleteModal({ open: false, document: null })}
           onConfirm={handleDelete}
         />
       )}

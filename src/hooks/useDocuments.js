@@ -79,7 +79,7 @@ export const useDocuments = (isAdmin, barangayId, userProfile) => {
   // Update status
   const changeStatus = useCallback(
     async (docId, newStatus, reviewNote, document) => {
-      await updateDocumentStatus(docId, newStatus, reviewNote);
+      await updateDocumentStatus(docId, newStatus, reviewNote, userProfile?.displayName || "");
 
       await addActivityLog({
         action:       "STATUS_CHANGE",
