@@ -191,8 +191,8 @@ const BarangayDashboard = () => {
             </Link>
           </div>
         ) : (
-          <div className="data-table-wrapper" style={{ overflowX: "auto" }}>
-            <table className="data-table" style={{ minWidth: 620, tableLayout: "fixed" }}>
+          <div className="data-table-wrapper">
+            <table className="data-table" style={{ tableLayout: "fixed" }}>
               <thead>
                 <tr>
                   <th style={{ width: "32%", textAlign: "left" }}>Document</th>
@@ -212,7 +212,7 @@ const BarangayDashboard = () => {
                     <tr key={doc.id}>
 
                       {/* Document name */}
-                      <td>
+                      <td data-label="Document">
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", overflow: "hidden" }}>
                           <div style={{
                             width: 28, height: 28, background: "#eff6ff", borderRadius: 7,
@@ -231,7 +231,7 @@ const BarangayDashboard = () => {
                       </td>
 
                       {/* Category */}
-                      <td style={{ textAlign: "center" }}>
+                      <td data-label="Category" style={{ textAlign: "center" }}>
                         <span style={{
                           background: "#f1f5f9", color: "#475569",
                           padding: "0.2rem 0.55rem", borderRadius: 6,
@@ -244,7 +244,7 @@ const BarangayDashboard = () => {
                       </td>
 
                       {/* Status badge */}
-                      <td style={{ textAlign: "center" }}>
+                      <td data-label="Status" style={{ textAlign: "center" }}>
                         <span
                           className="status-badge"
                           style={{ background: colors.bg, color: colors.text }}
@@ -255,12 +255,12 @@ const BarangayDashboard = () => {
                       </td>
 
                       {/* Uploaded */}
-                      <td style={{ color: "#64748b", fontSize: "0.8rem", textAlign: "center", whiteSpace: "nowrap" }}>
+                      <td data-label="Uploaded" style={{ color: "#64748b", fontSize: "0.8rem", textAlign: "center", whiteSpace: "nowrap" }}>
                         {timeAgo(doc.uploadedAt)}
                       </td>
 
                       {/* Notes — My Note (green) + Admin Note (blue) */}
-                      <td style={{ textAlign: "center" }}>
+                      <td data-label="Notes" style={{ textAlign: "center" }}>
                         {!hasMyNote && !hasAdminNote ? (
                           <span style={{ color: "#cbd5e1", fontSize: "0.78rem" }}>—</span>
                         ) : (

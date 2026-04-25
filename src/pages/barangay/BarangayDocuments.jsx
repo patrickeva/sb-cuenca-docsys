@@ -77,7 +77,7 @@ const BarangayDocuments = () => {
 
   return (
     <div className="page-wrapper">
-      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.75rem" }}>
         <div>
           <div className="breadcrumb">
             <span>Home</span>
@@ -128,8 +128,8 @@ const BarangayDocuments = () => {
       </div>
 
       <div className="card" style={{ padding: 0 }}>
-        <div className="data-table-wrapper" style={{ borderRadius: 14, overflowX: "auto" }}>
-          <table className="data-table" style={{ minWidth: 720, tableLayout: "fixed" }}>
+        <div className="data-table-wrapper" style={{ borderRadius: 14 }}>
+          <table className="data-table" style={{ tableLayout: "fixed" }}>
             <thead>
               <tr>
                 <th style={{ width: "28%", textAlign: "left" }}>Document Name</th>
@@ -167,7 +167,7 @@ const BarangayDocuments = () => {
                   <tr key={doc.id}>
 
                     {/* Document Name */}
-                    <td>
+                    <td data-label="Document">
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", overflow: "hidden" }}>
                         <div style={{
                           width: 28, height: 28, background: "#eff6ff", borderRadius: 7, flexShrink: 0,
@@ -186,7 +186,7 @@ const BarangayDocuments = () => {
                     </td>
 
                     {/* Category */}
-                    <td style={{ textAlign: "center" }}>
+                    <td data-label="Category" style={{ textAlign: "center" }}>
                       <span style={{
                         background: "#f1f5f9", color: "#475569", padding: "0.2rem 0.55rem",
                         borderRadius: 6, fontSize: "0.76rem", fontWeight: 600, textTransform: "capitalize",
@@ -198,12 +198,12 @@ const BarangayDocuments = () => {
                     </td>
 
                     {/* Size */}
-                    <td style={{ color: "#64748b", textAlign: "center", fontSize: "0.8rem" }}>
+                    <td data-label="Size" style={{ color: "#64748b", textAlign: "center", fontSize: "0.8rem" }}>
                       {formatFileSize(doc.fileSize)}
                     </td>
 
                     {/* Status */}
-                    <td style={{ textAlign: "center" }}>
+                    <td data-label="Status" style={{ textAlign: "center" }}>
                       <span className="status-badge" style={{ background: colors.bg, color: colors.text }}>
                         <span className="status-dot" style={{ background: colors.dot }} />
                         {doc.status}
@@ -211,12 +211,12 @@ const BarangayDocuments = () => {
                     </td>
 
                     {/* Date */}
-                    <td style={{ color: "#64748b", fontSize: "0.8rem", whiteSpace: "nowrap", textAlign: "center" }}>
+                    <td data-label="Uploaded" style={{ color: "#64748b", fontSize: "0.8rem", whiteSpace: "nowrap", textAlign: "center" }}>
                       {formatDate(doc.uploadedAt)}
                     </td>
 
                     {/* Notes — Admin Note (blue) + My Note (green), stacked */}
-                    <td style={{ textAlign: "center" }}>
+                    <td data-label="Notes" style={{ textAlign: "center" }}>
                       {!hasAdminNote && !hasMyNote ? (
                         <span style={{ color: "#cbd5e1", fontSize: "0.78rem" }}>—</span>
                       ) : (
@@ -256,7 +256,7 @@ const BarangayDocuments = () => {
                     </td>
 
                     {/* Actions */}
-                    <td style={{ textAlign: "center" }}>
+                    <td data-label="Actions" style={{ textAlign: "center" }}>
                       <div style={{ display: "flex", gap: "0.4rem", justifyContent: "center" }}>
                         <a
                           href={getOpenUrl(doc)}

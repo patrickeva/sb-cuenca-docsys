@@ -182,31 +182,30 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             );
           })}
 
-          {/* Collapse Toggle */}
-          <div className="nav-divider desktop-only" />
-          <button
-            className="nav-collapse-btn desktop-only"
-            onClick={() => setCollapsed(!collapsed)}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <div className="nav-icon-wrap">
-              {collapsed
-                ? <ChevronRight size={17} />
-                : <ChevronLeft size={17} />}
-            </div>
-            {!collapsed && (
-              <span className="nav-label">Collapse Sidebar</span>
-            )}
-          </button>
+          {/* Bottom actions — pinned below nav links */}
+          <div className="sidebar-bottom-actions">
+            <div className="nav-divider" />
+            <button className="logout-btn" onClick={handleLogout} title="Log Out">
+              <LogOut size={16} />
+              {!collapsed && <span>Log Out</span>}
+            </button>
+            <div className="nav-divider desktop-only" />
+            <button
+              className="nav-collapse-btn desktop-only"
+              onClick={() => setCollapsed(!collapsed)}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <div className="nav-icon-wrap">
+                {collapsed
+                  ? <ChevronRight size={17} />
+                  : <ChevronLeft size={17} />}
+              </div>
+              {!collapsed && (
+                <span className="nav-label">Collapse Sidebar</span>
+              )}
+            </button>
+          </div>
         </nav>
-
-        {/* Footer */}
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout} title="Log Out">
-            <LogOut size={16} />
-            {!collapsed && <span>Log Out</span>}
-          </button>
-        </div>
       </aside>
     </>
   );
